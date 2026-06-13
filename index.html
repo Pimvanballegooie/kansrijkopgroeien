@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kansrijk Opgroeien – Paramedisch netwerk regio Breda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --oranje:      #E86A1A;
+      --blauw:       #00AFE1;
+      --groen:       #6BBF2E;
+      --rood:        #E8193A;
+      --geel:        #F5C800;
+      --paars:       #7B3FA0;
+      --wit:         #FFFFFF;
+      --licht:       #F7F9FC;
+      --tekst:       #1E1E2E;
+      --tekst-muted: #6B7A99;
+      --border:      #E2E8F0;
+      --radius:      12px;
+      --shadow:      0 2px 20px rgba(0,0,0,0.07);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      color: var(--tekst);
+      background: var(--wit);
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--wit);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      border-bottom: 3px solid transparent;
+      border-image: linear-gradient(90deg, var(--rood), var(--oranje), var(--geel), var(--groen), var(--blauw), var(--paars)) 1;
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 70px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-icon { width: 44px; height: 44px; object-fit: contain; }
+    .logo-text { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--tekst); line-height: 1.2; }
+    .logo-text span { display: block; font-weight: 400; font-size: 0.72rem; color: var(--tekst-muted); letter-spacing: 0.04em; }
+
+    nav { display: flex; gap: 4px; align-items: center; }
+    nav a { color: var(--tekst-muted); text-decoration: none; font-size: 0.875rem; font-weight: 600; padding: 8px 14px; border-radius: 8px; transition: background 0.2s, color 0.2s; }
+    nav a:hover { background: var(--licht); color: var(--tekst); }
+    nav a.cta { background: var(--oranje); color: var(--wit); margin-left: 8px; }
+    nav a.cta:hover { background: #c85a10; }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--tekst); border-radius: 2px; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #FFF8F0 0%, #F0F9FF 50%, #F5FFF0 100%);
+      padding: 80px 24px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: -60px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(232,106,26,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(0,175,225,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero-inner { max-width: 700px; margin: 0 auto; position: relative; z-index: 1; padding-bottom: 80px; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--wit);
+      border: 2px solid var(--border);
+      color: var(--oranje);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 999px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+      font-family: 'Nunito', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      color: var(--tekst);
+    }
+
+    .hero h1 .accent-oranje { color: var(--oranje); }
+    .hero h1 .accent-blauw  { color: var(--blauw); }
+    .hero h1 .accent-groen  { color: var(--groen); }
+
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--tekst-muted);
+      max-width: 540px;
+      margin: 0 auto 36px;
+      line-height: 1.75;
+    }
+
+    .hero-stats { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; }
+    .stat { text-align: center; }
+    .stat-num { font-family: 'Nunito', sans-serif; font-size: 2rem; font-weight: 800; line-height: 1; }
+    .stat-label { font-size: 0.78rem; color: var(--tekst-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .hero-wave { display: block; width: 100%; height: 60px; }
+
+    /* ── SECTIONS ── */
+    section { padding: 72px 24px; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .section-header { margin-bottom: 40px; }
+    .section-header h2 { font-family: 'Nunito', sans-serif; font-size: clamp(1.6rem, 3vw, 2.1rem); font-weight: 800; color: var(--tekst); letter-spacing: -0.01em; line-height: 1.2; }
+    .section-header p { margin-top: 10px; color: var(--tekst-muted); max-width: 540px; font-size: 0.95rem; }
+
+    /* ── SPECIALISMEN (zones) ── */
+    #specialismen { background: var(--licht); }
+
+    .zone-tabs { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+
+    .zone-tab {
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 2px solid var(--border);
+      background: var(--wit);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--tekst-muted);
+    }
+
+    .zone-tab:hover { border-color: var(--oranje); color: var(--oranje); }
+    .zone-tab.active { color: var(--wit); border-color: transparent; }
+    .zone-tab[data-zone="bewegen"].active    { background: var(--blauw); }
+    .zone-tab[data-zone="ontwikkeling"].active { background: var(--groen); }
+    .zone-tab[data-zone="ademhaling"].active { background: var(--paars); }
+    .zone-tab[data-zone="vroeg"].active      { background: var(--oranje); }
+    .zone-tab[data-zone="specialisaties"].active { background: var(--rood); }
+
+    .protocol-zone { margin-bottom: 24px; }
+
+    .zone-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: var(--wit);
+      border: 1px solid var(--border);
+      border-radius: var(--radius) var(--radius) 0 0;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+
+    .zone-header:hover { background: var(--licht); }
+
+    .zone-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .zone-icon.bewegen     { background: #E3F6FD; }
+    .zone-icon.ontwikkeling { background: #EDF9E3; }
+    .zone-icon.ademhaling  { background: #F3EAF9; }
+    .zone-icon.vroeg       { background: #FEF2E8; }
+    .zone-icon.specialisaties { background: #FDEAED; }
+
+    .zone-title { flex: 1; }
+    .zone-title h3 { font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800; color: var(--tekst); }
+    .zone-title p { font-size: 0.8rem; color: var(--tekst-muted); margin-top: 1px; }
+    .zone-chevron { color: var(--tekst-muted); transition: transform 0.25s; font-size: 1rem; }
+    .zone-header.open .zone-chevron { transform: rotate(180deg); }
+
+    .zone-body {
+      background: var(--wit);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      overflow: hidden;
+    }
+
+    .protocol-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .protocol-row:first-child { border-top: none; }
+    .protocol-row:hover { background: var(--licht); }
+
+    .protocol-name { font-size: 0.9rem; font-weight: 600; color: var(--tekst); }
+    .protocol-name small { display: block; color: var(--tekst-muted); font-size: 0.78rem; font-weight: 400; margin-top: 2px; }
+
+    .protocol-btns { display: flex; gap: 6px; flex-shrink: 0; }
+
+    .level-btn {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .level-btn.easy   { background: #E3F6FD; color: #0077A8; }
+    .level-btn.medium { background: #EDF9E3; color: #3A7D1A; }
+    .level-btn.hard   { background: #FEF2E8; color: #A84A00; }
+
+    .level-btn:hover.easy   { background: var(--blauw); color: #fff; }
+    .level-btn:hover.medium { background: var(--groen); color: #fff; }
+    .level-btn:hover.hard   { background: var(--oranje); color: #fff; }
+
+    /* ── VIEWER ── */
+    .protocol-viewer {
+      display: none;
+      margin-top: 28px;
+      background: var(--wit);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .protocol-viewer.visible { display: block; }
+
+    .viewer-header {
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .viewer-header h3 { font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800; }
+    .viewer-level-badge { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; color: var(--wit); }
+    .viewer-close { background: none; border: none; color: var(--tekst-muted); cursor: pointer; font-size: 1.3rem; padding: 0 0 0 16px; }
+    .viewer-close:hover { color: var(--tekst); }
+
+    .viewer-body { padding: 28px 36px; min-height: 200px; max-width: 780px; line-height: 1.75; }
+    .viewer-body h1, .viewer-body h2, .viewer-body h3 { font-family: 'Nunito', sans-serif; color: var(--tekst); margin-top: 1.5em; margin-bottom: 0.5em; }
+    .viewer-body p { margin-bottom: 1em; }
+    .viewer-body ul, .viewer-body ol { margin: 0.5em 0 1em 1.5em; }
+    .viewer-body iframe { width: 100%; height: 600px; border: none; }
+
+    .viewer-loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--tekst-muted); font-size: 0.9rem; gap: 12px; }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--oranje); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── LOCATIES ── */
+    #locaties { background: var(--wit); }
+
+    .disc-filter { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+
+    .disc-btn {
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 2px solid var(--border);
+      background: var(--wit);
+      color: var(--tekst-muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .disc-btn.active { color: var(--wit); border-color: transparent; }
+    .disc-btn.active[data-disc="all"]             { background: var(--tekst); }
+    .disc-btn.active[data-disc="kinderfysiotherapeut"] { background: var(--blauw); }
+    .disc-btn.active[data-disc="logopedist"]      { background: var(--groen); }
+    .disc-btn.active[data-disc="ergotherapeut"]   { background: var(--oranje); }
+    .disc-btn.active[data-disc="psycholoog"]      { background: var(--paars); }
+    .disc-btn.active[data-disc="diëtist"]         { background: var(--rood); }
+
+    #kaart { height: 420px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 32px; z-index: 1; }
+
+    .locaties-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+    .locatie-card {
+      background: var(--licht);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .locatie-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+    .locatie-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .locatie-naam { font-weight: 700; font-size: 0.95rem; color: var(--tekst); text-decoration: none; }
+    .locatie-naam:hover { text-decoration: underline; }
+    .discipline-tag { font-size: 0.7rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; color: var(--wit); white-space: nowrap; margin-left: 8px; flex-shrink: 0; }
+    .locatie-adres { font-size: 0.85rem; color: var(--tekst-muted); margin-bottom: 12px; line-height: 1.5; }
+    .locatie-contact { display: flex; flex-direction: column; gap: 4px; }
+    .locatie-contact a { font-size: 0.83rem; color: var(--blauw); text-decoration: none; display: flex; align-items: center; gap: 6px; }
+    .locatie-contact a:hover { text-decoration: underline; }
+
+    /* Kaart markers */
+    .disc-marker { display: flex; gap: 3px; align-items: center; }
+    .disc-pill { display: inline-flex; align-items: center; justify-content: center; height: 26px; min-width: 26px; padding: 0 7px; border-radius: 13px; font-size: 0.68rem; font-weight: 800; color: #fff; letter-spacing: 0.02em; box-shadow: 0 2px 6px rgba(0,0,0,0.25); white-space: nowrap; border: 2px solid rgba(255,255,255,0.7); }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: linear-gradient(135deg, #FFF8F0 0%, #F0F9FF 100%);
+      text-align: center;
+      padding: 80px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section h2 { font-family: 'Nunito', sans-serif; font-size: clamp(1.6rem, 3vw, 2.1rem); font-weight: 800; color: var(--tekst); margin-bottom: 14px; }
+    .cta-section p { color: var(--tekst-muted); max-width: 480px; margin: 0 auto 32px; font-size: 0.95rem; }
+
+    .btn-primary {
+      display: inline-block;
+      background: var(--oranje);
+      color: var(--wit);
+      padding: 14px 36px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 4px 16px rgba(232,106,26,0.3);
+    }
+
+    .btn-primary:hover { background: #c85a10; transform: translateY(-2px); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--tekst);
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 28px 24px;
+      font-size: 0.82rem;
+    }
+
+    footer a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    footer a:hover { color: var(--wit); }
+
+    .leaflet-popup-content-wrapper { border-radius: 10px !important; box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important; }
+    .popup-adres { font-size: 0.82rem; color: var(--tekst-muted); margin-bottom: 10px; }
+    .popup-praktijken { display: flex; flex-direction: column; gap: 8px; }
+    .popup-praktijk { display: flex; align-items: center; gap: 8px; }
+    .popup-praktijk-naam { font-size: 0.83rem; font-weight: 600; color: var(--tekst); }
+    .popup-praktijk-naam a { color: inherit; text-decoration: none; }
+    .popup-praktijk-naam a:hover { text-decoration: underline; }
+
+    /* ── LEGENDA ── */
+    .legenda { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; align-items: center; }
+    .legenda-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--tekst-muted); }
+
+    @media (max-width: 700px) {
+      .hamburger { display: flex; }
+      nav { display: none; position: absolute; top: 70px; left: 0; right: 0; background: var(--wit); flex-direction: column; padding: 12px 16px 20px; gap: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+      nav.open { display: flex; }
+      nav a { padding: 10px 16px; border-radius: 8px; }
+      nav a.cta { margin-left: 0; margin-top: 8px; text-align: center; }
+      .hero-stats { gap: 24px; }
+      .protocol-row { grid-template-columns: 1fr; }
+      .protocol-btns { flex-wrap: wrap; }
+      .level-btn { font-size: 0.72rem; padding: 4px 9px; }
+      .viewer-body { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-inner">
+    <a href="#top" class="logo">
+      <img class="logo-icon" src="KO_Logo_transparant.png" alt="Kansrijk Opgroeien logo" />
+      <div class="logo-text">
+        Kansrijk Opgroeien
+        <span>Paramedisch netwerk regio Breda</span>
+      </div>
+    </a>
+    <div class="hamburger" onclick="toggleNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </div>
+    <nav id="main-nav">
+      <a href="#specialismen">Specialismen</a>
+      <a href="#locaties">Locaties</a>
+      <a href="ko-aanmelden.html" class="cta">Aansluiten</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ── HERO ── -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div class="hero-badge">🌳 Regio Breda e.o.</div>
+    <h1>
+      Samen voor elk kind dat<br>
+      <span class="accent-oranje">gezond</span> en
+      <span class="accent-blauw">kansrijk</span>
+      <span class="accent-groen">opgroeit</span>
+    </h1>
+    <p>Een paramedisch netwerk waar kinderfysiotherapeuten, logopedisten, ergotherapeuten en andere zorgverleners samenwerken aan de beste zorg voor kinderen in de regio.</p>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num" style="color:var(--blauw)">5+</div>
+        <div class="stat-label">Specialismen</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" style="color:var(--oranje)">3</div>
+        <div class="stat-label">Leesniveaus</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" style="color:var(--groen)">6+</div>
+        <div class="stat-label">Praktijken</div>
+      </div>
+    </div>
+  </div>
+  <svg class="hero-wave" viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="#F7F9FC"/>
+  </svg>
+</section>
+
+<!-- ── SPECIALISMEN ── -->
+<section id="specialismen">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow" style="color:var(--oranje)">Kinderfysiotherapie</div>
+      <h2>Specialismen & behandelgebieden</h2>
+      <p>Kies een categorie en open het informatiemateriaal op het gewenste leesniveau.</p>
+    </div>
+
+    <!-- Zone: Bewegen & Motoriek -->
+    <div class="protocol-zone">
+      <div class="zone-header open" onclick="toggleZone(this)">
+        <div class="zone-icon bewegen">🏃</div>
+        <div class="zone-title">
+          <h3>Bewegen & Motoriek</h3>
+          <p>Loopproblemen, sportblessures en orthopedische revalidatie</p>
+        </div>
+        <span class="zone-chevron">▾</span>
+      </div>
+      <div class="zone-body">
+        <div class="protocol-row">
+          <div class="protocol-name">Loopproblemen</div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('loopproblemen', 'Loopproblemen', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('loopproblemen', 'Loopproblemen', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('loopproblemen', 'Loopproblemen', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+        <div class="protocol-row">
+          <div class="protocol-name">
+            Sportgerelateerde blessures
+            <small>Acuut en overbelasting</small>
+          </div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('sportblessures', 'Sportblessures', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('sportblessures', 'Sportblessures', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('sportblessures', 'Sportblessures', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+        <div class="protocol-row">
+          <div class="protocol-name">
+            Orthopedische revalidatie na operatie
+            <small>Kinderfysiotherapie bij orthopedie (KOFY)</small>
+          </div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('kofy', 'Orthopedische revalidatie', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('kofy', 'Orthopedische revalidatie', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('kofy', 'Orthopedische revalidatie', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+        <div class="protocol-row">
+          <div class="protocol-name">Groeipijn</div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('groeipijn', 'Groeipijn', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('groeipijn', 'Groeipijn', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('groeipijn', 'Groeipijn', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone: Ontwikkeling -->
+    <div class="protocol-zone">
+      <div class="zone-header" onclick="toggleZone(this)">
+        <div class="zone-icon ontwikkeling">🧠</div>
+        <div class="zone-title">
+          <h3>Ontwikkeling</h3>
+          <p>Ontwikkelingsstoornissen, schrijf- en leerproblemen</p>
+        </div>
+        <span class="zone-chevron">▾</span>
+      </div>
+      <div class="zone-body" style="display:none">
+        <div class="protocol-row">
+          <div class="protocol-name">Schrijfproblemen</div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('schrijfproblemen', 'Schrijfproblemen', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('schrijfproblemen', 'Schrijfproblemen', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('schrijfproblemen', 'Schrijfproblemen', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+        <div class="protocol-row">
+          <div class="protocol-name">
+            Ontwikkelingsstoornis
+            <small>O.a. ernstig meervoudige beperking (EMB)</small>
+          </div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('emb', 'Ontwikkelingsstoornis (EMB)', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('emb', 'Ontwikkelingsstoornis (EMB)', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('emb', 'Ontwikkelingsstoornis (EMB)', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+        <div class="protocol-row">
+          <div class="protocol-name">
+            Sensorische Integratie
+            <small>SI-therapie</small>
+          </div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('si', 'Sensorische Integratie', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('si', 'Sensorische Integratie', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('si', 'Sensorische Integratie', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone: Ademhaling & Houding -->
+    <div class="protocol-zone">
+      <div class="zone-header" onclick="toggleZone(this)">
+        <div class="zone-icon ademhaling">💨</div>
+        <div class="zone-title">
+          <h3>Ademhaling & Houding</h3>
+          <p>Dysfunctionele ademhaling, scoliose en houdingsproblemen</p>
+        </div>
+        <span class="zone-chevron">▾</span>
+      </div>
+      <div class="zone-body" style="display:none">
+        <div class="protocol-row">
+          <div class="protocol-name">Dysfunctionele ademhaling</div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('ademhaling', 'Dysfunctionele ademhaling', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('ademhaling', 'Dysfunctionele ademhaling', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('ademhaling', 'Dysfunctionele ademhaling', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+        <div class="protocol-row">
+          <div class="protocol-name">
+            Scoliose / Kyfose
+            <small>Schroth-methode</small>
+          </div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('scoliose', 'Scoliose/Kyfose (Schroth)', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('scoliose', 'Scoliose/Kyfose (Schroth)', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('scoliose', 'Scoliose/Kyfose (Schroth)', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone: Vroeg & Jong kind -->
+    <div class="protocol-zone">
+      <div class="zone-header" onclick="toggleZone(this)">
+        <div class="zone-icon vroeg">👶</div>
+        <div class="zone-title">
+          <h3>Vroeg & Jong kind</h3>
+          <p>Zuigelingen, peuters en voorkeurshouding</p>
+        </div>
+        <span class="zone-chevron">▾</span>
+      </div>
+      <div class="zone-body" style="display:none">
+        <div class="protocol-row">
+          <div class="protocol-name">
+            Zuigeling / jong kind
+            <small>Tot 2 jaar, o.a. voorkeurshouding</small>
+          </div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('zuigeling', 'Zuigeling/jong kind', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('zuigeling', 'Zuigeling/jong kind', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('zuigeling', 'Zuigeling/jong kind', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+        <div class="protocol-row">
+          <div class="protocol-name">Voorkeurshouding</div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('voorkeurshouding', 'Voorkeurshouding', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('voorkeurshouding', 'Voorkeurshouding', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('voorkeurshouding', 'Voorkeurshouding', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+        <div class="protocol-row">
+          <div class="protocol-name">Manuele therapie bij kinderen</div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('manueel', 'Manuele therapie bij kinderen', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('manueel', 'Manuele therapie bij kinderen', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('manueel', 'Manuele therapie bij kinderen', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone: Specialisaties -->
+    <div class="protocol-zone">
+      <div class="zone-header" onclick="toggleZone(this)">
+        <div class="zone-icon specialisaties">⭐</div>
+        <div class="zone-title">
+          <h3>Specialisaties</h3>
+          <p>Gecertificeerde behandelmethoden</p>
+        </div>
+        <span class="zone-chevron">▾</span>
+      </div>
+      <div class="zone-body" style="display:none">
+        <div class="protocol-row">
+          <div class="protocol-name">
+            KOFY
+            <small>Kinderfysiotherapie bij orthopedie</small>
+          </div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('kofy-spec', 'KOFY', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('kofy-spec', 'KOFY', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('kofy-spec', 'KOFY', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+        <div class="protocol-row">
+          <div class="protocol-name">
+            Schroth
+            <small>Scoliosebehandeling</small>
+          </div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('schroth', 'Schroth', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('schroth', 'Schroth', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('schroth', 'Schroth', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+        <div class="protocol-row">
+          <div class="protocol-name">
+            Sensorische Integratie (SI)
+            <small>Gecertificeerde SI-therapie</small>
+          </div>
+          <div class="protocol-btns">
+            <button class="level-btn easy"   onclick="openProtocol('si-spec', 'Sensorische Integratie (SI)', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
+            <button class="level-btn medium" onclick="openProtocol('si-spec', 'Sensorische Integratie (SI)', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
+            <button class="level-btn hard"   onclick="openProtocol('si-spec', 'Sensorische Integratie (SI)', 'Complex', 'INVULLEN')">Complex</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Viewer -->
+    <div class="protocol-viewer" id="protocol-viewer">
+      <div class="viewer-header" id="viewer-header">
+        <div>
+          <div style="font-size:0.72rem;opacity:0.6;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.06em">Informatie</div>
+          <h3 id="viewer-title">–</h3>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span class="viewer-level-badge" id="viewer-level">–</span>
+          <button class="viewer-close" onclick="closeProtocol()">✕</button>
+        </div>
+      </div>
+      <div class="viewer-body" id="viewer-body">
+        <div class="viewer-loading"><div class="spinner"></div> Laden…</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── LOCATIES ── -->
+<section id="locaties" style="background:var(--wit)">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow" style="color:var(--blauw)">Netwerk</div>
+      <h2>Aangesloten praktijken</h2>
+      <p>Vind een aangesloten zorgverlener bij jou in de buurt.</p>
+    </div>
+
+    <div class="disc-filter">
+      <button class="disc-btn active" data-disc="all" onclick="filterDisc(this,'all')">Alle disciplines</button>
+      <button class="disc-btn active" data-disc="kinderfysiotherapeut" onclick="filterDisc(this,'kinderfysiotherapeut')">Kinderfysiotherapeut</button>
+      <button class="disc-btn active" data-disc="logopedist" onclick="filterDisc(this,'logopedist')">Logopedist</button>
+      <button class="disc-btn active" data-disc="ergotherapeut" onclick="filterDisc(this,'ergotherapeut')">Ergotherapeut</button>
+      <button class="disc-btn active" data-disc="psycholoog" onclick="filterDisc(this,'psycholoog')">Psycholoog</button>
+      <button class="disc-btn active" data-disc="diëtist" onclick="filterDisc(this,'diëtist')">Diëtist</button>
+    </div>
+
+    <div id="kaart"></div>
+
+    <div class="legenda">
+      <span style="font-size:0.78rem;font-weight:700;color:var(--tekst-muted)">Legenda:</span>
+      <span class="legenda-item"><span class="disc-pill" style="background:var(--blauw)">KF</span> Kinderfysiotherapeut</span>
+      <span class="legenda-item"><span class="disc-pill" style="background:var(--groen)">Lo</span> Logopedist</span>
+      <span class="legenda-item"><span class="disc-pill" style="background:var(--oranje)">Er</span> Ergotherapeut</span>
+      <span class="legenda-item"><span class="disc-pill" style="background:var(--paars)">Ps</span> Psycholoog</span>
+      <span class="legenda-item"><span class="disc-pill" style="background:var(--rood)">Di</span> Diëtist</span>
+    </div>
+
+    <div class="locaties-grid" id="locaties-grid">
+      <div class="locatie-card" data-discipline="kinderfysiotherapeut">
+        <div class="locatie-card-header">
+          <a href="#" class="locatie-naam">Voorbeeldpraktijk Kinderfysio</a>
+          <span class="discipline-tag" style="background:var(--blauw)">Kinderfysio</span>
+        </div>
+        <div class="locatie-adres">📍 Voorbeeldstraat 1, 4800 AB Breda</div>
+        <div class="locatie-contact">
+          <a href="mailto:info@voorbeeld.nl">✉ info@voorbeeld.nl</a>
+          <a href="tel:+31760000000">📞 076-0000000</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <h2>Aansluiten bij Kansrijk Opgroeien?</h2>
+  <p>Sluit jouw praktijk aan en werk samen aan de beste zorg voor kinderen in de regio Breda.</p>
+  <a href="ko-aanmelden.html" class="btn-primary">Aanmelden →</a>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <p>© 2025 Kansrijk Opgroeien – Paramedisch netwerk regio Breda &nbsp;·&nbsp; Samen voor elk kind</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+
+  function toggleNav() { document.getElementById('main-nav').classList.toggle('open'); }
+
+  function toggleZone(header) {
+    const body = header.nextElementSibling;
+    const isOpen = header.classList.contains('open');
+    header.classList.toggle('open');
+    body.style.display = isOpen ? 'none' : 'block';
+  }
+
+  // Niveau kleuren
+  const NIVEAU_STIJL = {
+    'Makkelijk': { bg: 'var(--blauw)',  text: '#fff' },
+    'Gemiddeld':  { bg: 'var(--groen)', text: '#fff' },
+    'Complex':    { bg: 'var(--oranje)',text: '#fff' },
+  };
+
+  async function openProtocol(id, naam, niveau, docId) {
+    const viewer  = document.getElementById('protocol-viewer');
+    const body    = document.getElementById('viewer-body');
+    const header  = document.getElementById('viewer-header');
+    const badge   = document.getElementById('viewer-level');
+
+    document.getElementById('viewer-title').textContent = naam;
+    badge.textContent = niveau;
+    const stijl = NIVEAU_STIJL[niveau] || { bg: 'var(--oranje)', text: '#fff' };
+    badge.style.background = stijl.bg;
+    badge.style.color = stijl.text;
+    header.style.borderBottom = `3px solid ${stijl.bg}`;
+
+    body.innerHTML = '<div class="viewer-loading"><div class="spinner"></div> Laden…</div>';
+    viewer.classList.add('visible');
+    setTimeout(() => viewer.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+
+    const niveauSlug = { 'Makkelijk': 'makkelijk', 'Gemiddeld': 'gemiddeld', 'Complex': 'complex' }[niveau];
+    const statischBestand = `specialismen/${id}-${niveauSlug}.html`;
+
+    try {
+      const resp = await fetch(statischBestand);
+      if (resp.ok) { body.innerHTML = await resp.text(); return; }
+    } catch(e) {}
+
+    if (docId && docId !== 'INVULLEN') {
+      const iframe = document.createElement('iframe');
+      iframe.title = naam;
+      iframe.style.cssText = 'width:100%;height:600px;border:none;';
+      iframe.src = `https://docs.google.com/document/d/${docId}/preview`;
+      body.innerHTML = '';
+      body.appendChild(iframe);
+    } else {
+      body.innerHTML = `<div style="padding:40px;text-align:center;color:var(--tekst-muted)">
+        <div style="font-size:2rem;margin-bottom:12px">📄</div>
+        <p>Dit document is nog niet gekoppeld.</p>
+        <p style="font-size:0.85rem;margin-top:8px">Voeg de Google Doc ID toe in de configuratie.</p>
+      </div>`;
+    }
+  }
+
+  function closeProtocol() {
+    document.getElementById('protocol-viewer').classList.remove('visible');
+    document.getElementById('viewer-body').innerHTML = '';
+  }
+
+  // ── KAART ──
+  const DISC_CONFIG = {
+    'kinderfysiotherapeut': { label: 'KF', color: '#00AFE1' },
+    'logopedist':           { label: 'Lo', color: '#6BBF2E' },
+    'ergotherapeut':        { label: 'Er', color: '#E86A1A' },
+    'psycholoog':           { label: 'Ps', color: '#7B3FA0' },
+    'diëtist':              { label: 'Di', color: '#E8193A' },
+  };
+
+  const LOCATIES = [
+    {
+      adres: 'Voorbeeldstraat 1, Breda',
+      lat: 51.5988, lng: 4.7763,
+      praktijken: [
+        { naam: 'Voorbeeldpraktijk Kinderfysio', url: '#', disciplines: ['kinderfysiotherapeut'] }
+      ]
+    }
+  ];
+
+  const actieveDisc = new Set(Object.keys(DISC_CONFIG));
+
+  function alleDisc(loc) { return [...new Set(loc.praktijken.flatMap(p => p.disciplines))]; }
+
+  function maakMarkerHTML(loc, actief) {
+    return alleDisc(loc)
+      .filter(d => actief.size === 0 || actief.has(d))
+      .map(d => {
+        const cfg = DISC_CONFIG[d];
+        return cfg ? `<span class="disc-pill" style="background:${cfg.color}">${cfg.label}</span>` : '';
+      }).join('');
+  }
+
+  function maakPopupHTML(loc) {
+    const rijen = loc.praktijken.map(p => {
+      const pills = p.disciplines.map(d => {
+        const cfg = DISC_CONFIG[d];
+        return cfg ? `<span class="disc-pill" style="background:${cfg.color};font-size:0.65rem;height:20px;min-width:20px">${cfg.label}</span>` : '';
+      }).join('');
+      return `<div class="popup-praktijk">
+        <div style="display:flex;gap:3px;flex-shrink:0">${pills}</div>
+        <div class="popup-praktijk-naam"><a href="${p.url}" target="_blank">${p.naam}</a></div>
+      </div>`;
+    }).join('');
+    return `<div class="popup-adres">📍 <strong>${loc.adres}</strong></div>
+            <div class="popup-praktijken">${rijen}</div>`;
+  }
+
+  const kaart = L.map('kaart').setView([51.5988, 4.7763], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>', maxZoom: 18
+  }).addTo(kaart);
+
+  const markers = LOCATIES.map(loc => {
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="disc-marker">${maakMarkerHTML(loc, new Set())}</div>`,
+      iconAnchor: [0,13], popupAnchor: [13,-13]
+    });
+    const marker = L.marker([loc.lat, loc.lng], { icon }).addTo(kaart).bindPopup(maakPopupHTML(loc), { maxWidth: 260 });
+    return { loc, marker };
+  });
+
+  function updateFilter() {
+    document.querySelectorAll('.locatie-card').forEach(card => {
+      const match = actieveDisc.size === Object.keys(DISC_CONFIG).length || actieveDisc.has(card.dataset.discipline);
+      card.style.display = match ? '' : 'none';
+    });
+
+    markers.forEach(({ loc, marker }) => {
+      const zichtbaar = alleDisc(loc).some(d => actieveDisc.has(d));
+      const alleActief = actieveDisc.size === Object.keys(DISC_CONFIG).length;
+      const pillsHTML = maakMarkerHTML(loc, alleActief ? new Set() : actieveDisc);
+      if (zichtbaar && pillsHTML) {
+        marker.addTo(kaart);
+        marker.setIcon(L.divIcon({ className: '', html: `<div class="disc-marker">${pillsHTML}</div>`, iconAnchor: [0,13], popupAnchor: [13,-13] }));
+      } else { marker.remove(); }
+    });
+  }
+
+  function filterDisc(btn, disc) {
+    if (disc === 'all') {
+      Object.keys(DISC_CONFIG).forEach(d => actieveDisc.add(d));
+      document.querySelectorAll('.disc-btn').forEach(b => b.classList.add('active'));
+    } else {
+      document.querySelector('.disc-btn[data-disc="all"]').classList.remove('active');
+      if (actieveDisc.has(disc) && actieveDisc.size > 1) { actieveDisc.delete(disc); btn.classList.remove('active'); }
+      else { actieveDisc.add(disc); btn.classList.add('active'); }
+      if (actieveDisc.size === Object.keys(DISC_CONFIG).length)
+        document.querySelector('.disc-btn[data-disc="all"]').classList.add('active');
+    }
+    updateFilter();
+  }
+
+</script>
+</body>
+</html>
