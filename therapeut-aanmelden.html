@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aanmelden als therapeut – VindJeFysio Netwerk</title>
+  <meta name="description" content="Meld u aan als therapeut bij het VindJeFysio Netwerk via de subsite die past bij uw specialisatie." />
+  <style>
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-300.woff2') format('woff2'); font-weight: 300; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-500.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-600.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1B3A5C; --navy-dark: #0F2340;
+      --teal: #2A9D8F; --teal-light: #E8F5F4;
+      --grey-bg: #F5F7FA; --grey-border: #DDE3EC;
+      --text: #1A1A2E; --text-muted: #6B7A99; --white: #FFFFFF;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--text); background: var(--white); line-height: 1.6; }
+
+    /* HEADER */
+    header { background: var(--white); border-bottom: 1px solid var(--grey-border); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .header-inner { max-width: 1200px; margin: 0 auto; padding: 0 clamp(1rem,4vw,3rem); display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-img { height: 48px; width: auto; }
+    nav a { color: var(--text-muted); text-decoration: none; font-size: 0.875rem; font-weight: 500; padding: 8px 14px; border-radius: 8px; transition: all 0.2s; }
+    nav a:hover { background: var(--grey-bg); color: var(--navy); }
+
+    /* HERO */
+    .hero { background: linear-gradient(135deg, #F5A623 0%, #E8735A 20%, #C0392B 35%, #8E44AD 55%, #2980B9 75%, #2A9D8F 100%); color: var(--white); padding: 72px 24px 64px; text-align: center; position: relative; }
+    .hero::before { content:''; position:absolute; inset:0; background:rgba(0,0,0,0.3); }
+    .hero-content { position:relative; z-index:1; }
+    .hero-eyebrow { display: inline-block; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); color: rgba(255,255,255,0.95); font-size: 0.75rem; font-weight: 700; padding: 4px 16px; border-radius: 999px; margin-bottom: 20px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .hero h1 { font-size: clamp(1.8rem,4vw,2.6rem); font-weight: 700; margin-bottom: 14px; letter-spacing: -0.02em; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .hero p { opacity: 0.92; max-width: 580px; margin: 0 auto; font-size: 1rem; line-height: 1.7; }
+
+    /* CONTENT */
+    .content { max-width: 900px; margin: 0 auto; padding: 56px clamp(1rem,4vw,3rem) 80px; }
+
+    /* STAPPEN */
+    .stappen { display: flex; flex-direction: column; gap: 0; margin-bottom: 56px; }
+    .stap { display: flex; gap: 24px; padding: 28px 0; border-bottom: 1px solid var(--grey-border); align-items: flex-start; }
+    .stap:last-child { border-bottom: none; }
+    .stap-nr { width: 52px; height: 52px; border-radius: 50%; background: var(--navy); color: var(--white); font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .stap-body h3 { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+    .stap-body p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; }
+    .stap-body .tip { background: var(--teal-light); border: 1px solid rgba(42,157,143,0.3); border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: #1a6b62; margin-top: 10px; }
+
+    /* SUBSITES */
+    .subsites-titel { font-size: 1.3rem; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+    .subsites-sub { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 28px; }
+    .subsites-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+    .subsite-tegel { background: var(--white); border: 2px solid var(--grey-border); border-radius: 16px; padding: 24px; text-decoration: none; color: inherit; transition: all 0.2s; display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; }
+    .subsite-tegel::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background: var(--tegel-kleur, var(--teal)); }
+    .subsite-tegel:hover { border-color: var(--tegel-kleur, var(--teal)); box-shadow: 0 8px 32px rgba(0,0,0,0.10); transform: translateY(-2px); }
+    .subsite-tegel.binnenkort { opacity: 0.5; pointer-events: none; }
+    .subsite-icon { font-size: 2rem; }
+    .subsite-naam { font-size: 1rem; font-weight: 700; color: var(--navy); }
+    .subsite-focus { font-size: 0.78rem; color: var(--tegel-kleur, var(--teal)); font-weight: 600; }
+    .subsite-omschrijving { font-size: 0.83rem; color: var(--text-muted); line-height: 1.55; }
+    .subsite-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; width: fit-content; }
+    .subsite-badge.actief { background: var(--teal-light); color: var(--teal); }
+    .subsite-badge.binnenkort { background: var(--grey-bg); color: var(--text-muted); }
+    .subsite-link { font-size: 0.82rem; font-weight: 700; color: var(--tegel-kleur, var(--teal)); margin-top: auto; display: flex; align-items: center; gap: 4px; }
+
+    /* CTA */
+    .cta-blok { background: linear-gradient(135deg, var(--navy) 0%, #2A4A73 100%); border-radius: 16px; padding: 36px; color: var(--white); text-align: center; margin-top: 56px; }
+    .cta-blok h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
+    .cta-blok p { opacity: 0.8; font-size: 0.9rem; margin-bottom: 20px; }
+    .btn-cta { display: inline-block; background: var(--teal); color: var(--white); padding: 12px 28px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; text-decoration: none; transition: background 0.2s; }
+    .btn-cta:hover { background: #238a7e; }
+
+    footer { background: var(--navy-dark); color: rgba(255,255,255,0.5); text-align: center; padding: 28px 24px; font-size: 0.82rem; }
+    footer a { color: rgba(255,255,255,0.7); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <img class="logo-img" src="VJF_Logo.png" alt="VindJeFysio" />
+    </a>
+    <nav>
+      <a href="index.html">← Terug naar zoeken</a>
+      <a href="therapeut-aanmelden.html">Aanmelden als therapeut</a>
+      <a href="aanmelden.html" style="background:var(--teal);color:white;border-radius:8px;padding:8px 16px">Praktijk aanmelden</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Voor fysiotherapeuten & paramedici</div>
+    <h1>Aanmelden als therapeut</h1>
+    <p>Word gevonden door patiënten die zoeken op uw specialisatie. Meld u aan via de subsite die past bij uw expertisegebied.</p>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- STAPPEN -->
+  <div class="stappen">
+    <div class="stap">
+      <div class="stap-nr">1</div>
+      <div class="stap-body">
+        <h3>Zorg dat uw praktijk is aangemeld</h3>
+        <p>Voordat u zich als therapeut kunt aanmelden, moet uw praktijk of locatie al zijn geregistreerd bij het netwerk. Heeft de beheerder van uw praktijk dit al gedaan? Dan heeft u een <strong>praktijkcode</strong> nodig.</p>
+        <div class="tip">💡 Is uw praktijk nog niet aangemeld? Vraag de beheerder om dit te doen via <a href="aanmelden.html" style="color:var(--teal);font-weight:600">de aanmeldpagina voor praktijken</a>. Na goedkeuring ontvangt de beheerder een unieke praktijkcode.</div>
+      </div>
+    </div>
+    <div class="stap">
+      <div class="stap-nr">2</div>
+      <div class="stap-body">
+        <h3>Vraag de praktijkcode op bij uw beheerder</h3>
+        <p>De praktijkcode is een unieke code die de beheerder van uw locatie heeft ontvangen na goedkeuring. U heeft deze code nodig om uzelf te koppelen aan de juiste praktijk. Zonder code kunt u zich niet aanmelden.</p>
+      </div>
+    </div>
+    <div class="stap">
+      <div class="stap-nr">3</div>
+      <div class="stap-body">
+        <h3>Kies de subsite die past bij uw specialisatie</h3>
+        <p>Elk expertisegebied heeft een eigen platform. Klik hieronder op de subsite die bij uw specialisatie past en meld u daar aan als therapeut. U kunt zich bij meerdere subsites aanmelden als u meerdere specialisaties heeft.</p>
+      </div>
+    </div>
+    <div class="stap">
+      <div class="stap-nr">4</div>
+      <div class="stap-body">
+        <h3>Na goedkeuring bent u zichtbaar</h3>
+        <p>Uw aanmelding wordt beoordeeld door de beheerder van het netwerk. Na goedkeuring ontvangt u een uitnodigingsmail om uw profiel in te stellen. U bent dan zichtbaar op de subsite én op vindjefysio.net.</p>
+        <div class="tip">✓ Uw profiel verschijnt automatisch op alle platformen waar uw praktijk bij is aangesloten.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBSITES -->
+  <div class="subsites-titel">Kies uw specialisatie</div>
+  <div class="subsites-sub">Klik op het platform dat past bij uw expertisegebied om u aan te melden als therapeut.</div>
+  <div class="subsites-grid">
+
+    <a class="subsite-tegel" href="https://enkelvoet.net/therapeut-worden.html" style="--tegel-kleur:#2A9D8F">
+      <div class="subsite-icon">🦶</div>
+      <div class="subsite-naam">Enkel Voet Netwerk</div>
+      <div class="subsite-focus">Enkel & voet</div>
+      <div class="subsite-omschrijving">Enkelverzwikking, hielspoor, achillespees, instabiele enkel en voetklachten. Inclusief cursusplatform en specialisatiebadge.</div>
+      <span class="subsite-badge actief">✓ Actief — meld u nu aan</span>
+      <div class="subsite-link">Aanmelden als therapeut →</div>
+    </a>
+
+    <div class="subsite-tegel binnenkort" style="--tegel-kleur:#1A237E">
+      <div class="subsite-icon">🦿</div>
+      <div class="subsite-naam">Knie Onderbeen Netwerk</div>
+      <div class="subsite-focus">Knie & onderbeen</div>
+      <div class="subsite-omschrijving">Kniepijn, meniscus, kruisband, knieartrose en knieschijfklachten.</div>
+      <span class="subsite-badge binnenkort">Binnenkort beschikbaar</span>
+    </div>
+
+    <div class="subsite-tegel binnenkort" style="--tegel-kleur:#E65100">
+      <div class="subsite-icon">🦵</div>
+      <div class="subsite-naam">Heup Bovenbeen Netwerk</div>
+      <div class="subsite-focus">Heup, lies & bovenbeen</div>
+      <div class="subsite-omschrijving">Heuppijn, liesklachten, heupartrose en peesklachten rond het bovenbeen.</div>
+      <span class="subsite-badge binnenkort">Binnenkort beschikbaar</span>
+    </div>
+
+    <div class="subsite-tegel binnenkort" style="--tegel-kleur:#6A1B9A">
+      <div class="subsite-icon">🧠</div>
+      <div class="subsite-naam">Neurologie Netwerk</div>
+      <div class="subsite-focus">CVA · Parkinson · MS</div>
+      <div class="subsite-omschrijving">Neurologische aandoeningen, duizeligheid en neuromusculaire klachten.</div>
+      <span class="subsite-badge binnenkort">Binnenkort beschikbaar</span>
+    </div>
+
+    <a class="subsite-tegel" href="https://kansrijkopgroeien.net/therapeut-aanmelden.html" style="--tegel-kleur:#2E7D32">
+      <div class="subsite-icon">👶</div>
+      <div class="subsite-naam">Kansrijk Opgroeien</div>
+      <div class="subsite-focus">Kinderfysiotherapie & jeugdzorg</div>
+      <div class="subsite-omschrijving">Motorische ontwikkeling, schrijfproblemen, houding, ademhaling en DCD bij kinderen van 0–18 jaar.</div>
+      <span class="subsite-badge actief">✓ Actief — meld u nu aan</span>
+      <div class="subsite-link">Aanmelden als therapeut →</div>
+    </a>
+
+    <div class="subsite-tegel binnenkort" style="--tegel-kleur:#F9A825">
+      <div class="subsite-icon">🧓</div>
+      <div class="subsite-naam">Gezond Oud Worden</div>
+      <div class="subsite-focus">Ouderenfysiotherapie</div>
+      <div class="subsite-omschrijving">Valpreventie, mobiliteit, dementie en bewegen, revalidatie op latere leeftijd.</div>
+      <span class="subsite-badge binnenkort">Binnenkort beschikbaar</span>
+    </div>
+
+    <div class="subsite-tegel binnenkort" style="--tegel-kleur:#00838F">
+      <div class="subsite-icon">🦴</div>
+      <div class="subsite-naam">Rug Nek Netwerk</div>
+      <div class="subsite-focus">Rug, nek & bekken</div>
+      <div class="subsite-omschrijving">Lage rugklachten, nekpijn, bekkenklachten en scoliose.</div>
+      <span class="subsite-badge binnenkort">Binnenkort beschikbaar</span>
+    </div>
+
+    <div class="subsite-tegel binnenkort" style="--tegel-kleur:#00897B">
+      <div class="subsite-icon">💪</div>
+      <div class="subsite-naam">Schouder Arm Netwerk</div>
+      <div class="subsite-focus">Schouder, elleboog, pols & hand</div>
+      <div class="subsite-omschrijving">Frozen shoulder, tenniselleboog, carpaal tunnel en handklachten.</div>
+      <span class="subsite-badge binnenkort">Binnenkort beschikbaar</span>
+    </div>
+
+  </div>
+
+  <!-- CTA PRAKTIJK -->
+  <div class="cta-blok">
+    <h2>Uw praktijk nog niet aangemeld?</h2>
+    <p>Zorg eerst dat uw praktijkbeheerder de locatie aanmeldt. Na goedkeuring ontvangt de beheerder een praktijkcode waarmee u zich als therapeut kunt aanmelden.</p>
+    <a class="btn-cta" href="aanmelden.html">Praktijk aanmelden →</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2025 VindJeFysio.net · <a href="index.html">Home</a> · <a href="privacy.html">Privacyverklaring</a> · <a href="mailto:info@vindjefysio.net">info@vindjefysio.net</a></p>
+</footer>
+
+</body>
+</html>
