@@ -3,928 +3,502 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kansrijk Opgroeien – Paramedisch netwerk regio Breda</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <title>Kansrijk Opgroeien – Gespecialiseerde kinderfysiotherapie bij u in de buurt</title>
+  <meta name="description" content="Vind een gespecialiseerde kinderfysiotherapeut bij u in de buurt. Kansrijk Opgroeien verbindt ouders met specialisten in motorische ontwikkeling, schrijfproblemen, houding en meer." />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-300.woff2') format('woff2'); font-weight: 300; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-500.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-600.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --oranje:      #E86A1A;
-      --blauw:       #00AFE1;
-      --groen:       #6BBF2E;
-      --rood:        #E8193A;
-      --geel:        #F5C800;
-      --paars:       #7B3FA0;
-      --wit:         #FFFFFF;
-      --licht:       #F7F9FC;
-      --tekst:       #1E1E2E;
-      --tekst-muted: #6B7A99;
-      --border:      #E2E8F0;
-      --radius:      12px;
-      --shadow:      0 2px 20px rgba(0,0,0,0.07);
+      --oranje: #E8735A; --oranje-light: #FDF0ED;
+      --groen: #4CAF50; --groen-light: #EDF7EE;
+      --paars: #8E44AD; --blauw: #2980B9;
+      --navy: #2C3E50; --navy-dark: #1a252f;
+      --grey-bg: #F8F9FA; --grey-border: #E8ECF0;
+      --text: #2C3E50; --text-muted: #7F8C8D; --white: #FFFFFF;
     }
-
     html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--text); background: var(--white); line-height: 1.6; }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      font-size: 16px;
-      color: var(--tekst);
-      background: var(--wit);
-      line-height: 1.6;
-    }
-
-    /* ── HEADER ── */
-    header {
-      background: var(--wit);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      border-bottom: 3px solid transparent;
-      border-image: linear-gradient(90deg, var(--rood), var(--oranje), var(--geel), var(--groen), var(--blauw), var(--paars)) 1;
-    }
-
-    .header-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 70px;
-    }
-
-    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-    .logo-icon { width: 44px; height: 44px; object-fit: contain; }
-    .logo-text { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--tekst); line-height: 1.2; }
-    .logo-text span { display: block; font-weight: 400; font-size: 0.72rem; color: var(--tekst-muted); letter-spacing: 0.04em; }
-
-    nav { display: flex; gap: 4px; align-items: center; }
-    nav a { color: var(--tekst-muted); text-decoration: none; font-size: 0.875rem; font-weight: 600; padding: 8px 14px; border-radius: 8px; transition: background 0.2s, color 0.2s; }
-    nav a:hover { background: var(--licht); color: var(--tekst); }
-    nav a.cta { background: var(--oranje); color: var(--wit); margin-left: 8px; }
-    nav a.cta:hover { background: #c85a10; }
-
+    /* HEADER */
+    header { background: var(--white); border-bottom: 1px solid var(--grey-border); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .header-inner { max-width: 1200px; margin: 0 auto; padding: 0 clamp(1rem,4vw,2rem); display: flex; align-items: center; justify-content: space-between; height: 72px; gap: 16px; }
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0; }
+    .logo img { height: 48px; width: 48px; object-fit: contain; }
+    .logo-text { font-weight: 700; font-size: 1rem; color: var(--navy); line-height: 1.2; }
+    .logo-text span { color: var(--oranje); }
+    nav { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+    nav a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; padding: 7px 12px; border-radius: 8px; transition: all 0.2s; white-space: nowrap; }
+    nav a:hover { background: var(--grey-bg); color: var(--navy); }
+    nav a.cta { background: var(--oranje); color: var(--white); font-weight: 700; }
+    nav a.cta:hover { background: #d4614a; }
     .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
-    .hamburger span { display: block; width: 24px; height: 2px; background: var(--tekst); border-radius: 2px; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--navy); border-radius: 2px; }
 
-    /* ── HERO ── */
-    .hero {
-      background: linear-gradient(135deg, #FFF8F0 0%, #F0F9FF 50%, #F5FFF0 100%);
-      padding: 80px 24px 0;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
+    /* HERO */
+    .hero { background: linear-gradient(135deg, #E8735A 0%, #F5A623 30%, #4CAF50 60%, #2980B9 100%); position: relative; padding: 80px 24px 0; text-align: center; overflow: hidden; }
+    .hero::before { content:''; position:absolute; inset:0; background:rgba(0,0,0,0.35); }
+    .hero-content { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding-bottom: 80px; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); color: rgba(255,255,255,0.95); font-size: 0.75rem; font-weight: 700; padding: 5px 16px; border-radius: 999px; margin-bottom: 20px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .hero h1 { font-size: clamp(2rem,5vw,3rem); font-weight: 700; color: var(--white); line-height: 1.15; margin-bottom: 16px; letter-spacing: -0.02em; text-shadow: 0 2px 12px rgba(0,0,0,0.2); }
+    .hero h1 em { font-style: normal; color: #FFE082; }
+    .hero p { color: rgba(255,255,255,0.9); font-size: 1.05rem; max-width: 560px; margin: 0 auto 36px; line-height: 1.7; }
+    .hero-wave { display: block; width: 100%; margin-bottom: -2px; }
 
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -60px; left: -60px;
-      width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(232,106,26,0.15) 0%, transparent 70%);
-      border-radius: 50%;
-    }
+    /* ZOEKBALK */
+    .zoek-sectie { background: var(--grey-bg); padding: 0 24px 40px; }
+    .zoek-inner { max-width: 700px; margin: 0 auto; }
+    .zoek-kaart { background: var(--white); border-radius: 20px; padding: 28px; box-shadow: 0 8px 40px rgba(0,0,0,0.12); margin-top: -48px; position: relative; z-index: 10; border: 1px solid var(--grey-border); }
+    .zoek-titel { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 16px; }
+    .zoek-rij { display: flex; gap: 10px; flex-wrap: wrap; }
+    .zoek-input { flex: 1; min-width: 180px; padding: 12px 16px; border: 1.5px solid var(--grey-border); border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+    .zoek-input:focus { border-color: var(--oranje); box-shadow: 0 0 0 3px rgba(232,115,90,0.12); }
+    .zoek-select { padding: 12px 16px; border: 1.5px solid var(--grey-border); border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.9rem; outline: none; background: var(--white); color: var(--text); cursor: pointer; }
+    .zoek-btn { padding: 12px 24px; background: var(--oranje); color: var(--white); border: none; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+    .zoek-btn:hover { background: #d4614a; }
+    .zoek-hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 10px; }
 
-    .hero::after {
-      content: '';
-      position: absolute;
-      top: -40px; right: -40px;
-      width: 180px; height: 180px;
-      background: radial-gradient(circle, rgba(0,175,225,0.15) 0%, transparent 70%);
-      border-radius: 50%;
-    }
+    /* KLACHTEN TEGELS */
+    .klachten-sectie { padding: 56px 24px; background: var(--white); }
+    .sectie-inner { max-width: 1100px; margin: 0 auto; }
+    .sectie-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--oranje); margin-bottom: 8px; }
+    .sectie-titel { font-size: clamp(1.4rem,3vw,1.9rem); font-weight: 700; color: var(--navy); margin-bottom: 8px; letter-spacing: -0.02em; }
+    .sectie-sub { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 32px; max-width: 560px; }
+    .klachten-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+    .klacht-tegel { background: var(--grey-bg); border: 1.5px solid var(--grey-border); border-radius: 14px; padding: 20px 16px; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .klacht-tegel:hover { border-color: var(--oranje); background: var(--oranje-light); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(232,115,90,0.15); }
+    .klacht-tegel.actief { border-color: var(--oranje); background: var(--oranje-light); }
+    .klacht-icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .klacht-naam { font-size: 0.85rem; font-weight: 700; color: var(--navy); }
+    .klacht-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 
-    .hero-inner { max-width: 700px; margin: 0 auto; position: relative; z-index: 1; padding-bottom: 80px; }
+    /* RESULTATEN */
+    .resultaten-sectie { padding: 0 24px 56px; background: var(--grey-bg); }
+    .resultaten-inner { max-width: 1100px; margin: 0 auto; }
+    .resultaten-header { display: flex; justify-content: space-between; align-items: center; padding: 24px 0 16px; }
+    .resultaten-aantal { font-size: 0.88rem; color: var(--text-muted); }
+    .resultaten-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .resultaten-layout { grid-template-columns: 1fr; } }
+    .praktijk-lijst { display: flex; flex-direction: column; gap: 12px; max-height: 600px; overflow-y: auto; }
+    .praktijk-kaart { background: var(--white); border: 1.5px solid var(--grey-border); border-radius: 14px; padding: 18px; cursor: pointer; transition: all 0.2s; }
+    .praktijk-kaart:hover, .praktijk-kaart.actief { border-color: var(--oranje); box-shadow: 0 4px 16px rgba(232,115,90,0.12); }
+    .praktijk-naam { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .praktijk-adres { font-size: 0.82rem; color: var(--text-muted); }
+    .praktijk-therapeuten { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .therapeut-rij { display: flex; align-items: center; gap: 10px; }
+    .therapeut-foto { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--grey-border); flex-shrink: 0; }
+    .therapeut-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--oranje-light); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+    .therapeut-naam { font-size: 0.82rem; font-weight: 600; color: var(--navy); }
+    .therapeut-disc { font-size: 0.75rem; color: var(--text-muted); }
+    .kaart-wrap { border-radius: 14px; overflow: hidden; border: 1px solid var(--grey-border); height: 600px; position: sticky; top: 90px; }
+    #kaart { height: 100%; }
+    .geen-resultaten { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+    .geen-icon { font-size: 3rem; margin-bottom: 12px; }
 
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--wit);
-      border: 2px solid var(--border);
-      color: var(--oranje);
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 6px 16px;
-      border-radius: 999px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-    }
+    /* CONTEXT BANNER */
+    .context-banner { background: var(--oranje-light); border: 1px solid rgba(232,115,90,0.3); border-radius: 10px; padding: 10px 16px; font-size: 0.85rem; color: var(--oranje); font-weight: 600; margin-bottom: 12px; display: none; }
 
-    .hero h1 {
-      font-family: 'Nunito', sans-serif;
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 800;
-      line-height: 1.15;
-      margin-bottom: 20px;
-      color: var(--tekst);
-    }
+    /* SPECIALISATIES */
+    .spec-sectie { padding: 56px 24px; background: var(--white); }
+    .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 32px; }
+    .spec-kaart { background: var(--grey-bg); border: 1px solid var(--grey-border); border-radius: 14px; padding: 24px; }
+    .spec-icon { font-size: 2rem; margin-bottom: 12px; }
+    .spec-naam { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+    .spec-beschrijving { font-size: 0.83rem; color: var(--text-muted); line-height: 1.6; }
 
-    .hero h1 .accent-oranje { color: var(--oranje); }
-    .hero h1 .accent-blauw  { color: var(--blauw); }
-    .hero h1 .accent-groen  { color: var(--groen); }
+    /* AANMELDEN CTA */
+    .aanmeld-sectie { padding: 56px 24px; background: linear-gradient(135deg, #E8735A 0%, #F5A623 100%); }
+    .aanmeld-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 700px) { .aanmeld-inner { grid-template-columns: 1fr; } }
+    .aanmeld-kaart { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 28px; color: var(--white); text-align: center; }
+    .aanmeld-kaart h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+    .aanmeld-kaart p { font-size: 0.88rem; opacity: 0.88; margin-bottom: 20px; line-height: 1.6; }
+    .aanmeld-btn { display: inline-block; background: var(--white); color: var(--oranje); padding: 11px 24px; border-radius: 8px; font-size: 0.9rem; font-weight: 700; text-decoration: none; transition: all 0.2s; }
+    .aanmeld-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .aanmeld-btn.donker { background: var(--navy); color: var(--white); }
+    .aanmeld-btn.donker:hover { background: #1a252f; }
 
-    .hero p {
-      font-size: 1.05rem;
-      color: var(--tekst-muted);
-      max-width: 540px;
-      margin: 0 auto 36px;
-      line-height: 1.75;
-    }
+    /* PROTOCOLLEN */
+    .protocol-sectie { padding: 56px 24px; background: var(--grey-bg); }
+    .protocol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 32px; }
+    .protocol-kaart { background: var(--white); border: 1px solid var(--grey-border); border-radius: 14px; padding: 24px; transition: all 0.2s; }
+    .protocol-kaart:hover { border-color: var(--oranje); box-shadow: 0 4px 16px rgba(232,115,90,0.1); }
+    .protocol-kaart .tag { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--oranje-light); color: var(--oranje); margin-bottom: 10px; }
+    .protocol-kaart h3 { font-size: 0.9rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+    .protocol-kaart p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.55; }
+    .protocol-binnenkort { opacity: 0.5; }
 
-    .hero-stats { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; }
-    .stat { text-align: center; }
-    .stat-num { font-family: 'Nunito', sans-serif; font-size: 2rem; font-weight: 800; line-height: 1; }
-    .stat-label { font-size: 0.78rem; color: var(--tekst-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
-
-    .hero-wave { display: block; width: 100%; height: 60px; }
-
-    /* ── SECTIONS ── */
-    section { padding: 72px 24px; }
-    .section-inner { max-width: 1100px; margin: 0 auto; }
-    .section-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
-    .section-header { margin-bottom: 40px; }
-    .section-header h2 { font-family: 'Nunito', sans-serif; font-size: clamp(1.6rem, 3vw, 2.1rem); font-weight: 800; color: var(--tekst); letter-spacing: -0.01em; line-height: 1.2; }
-    .section-header p { margin-top: 10px; color: var(--tekst-muted); max-width: 540px; font-size: 0.95rem; }
-
-    /* ── SPECIALISMEN (zones) ── */
-    #specialismen { background: var(--licht); }
-
-    .zone-tabs { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
-
-    .zone-tab {
-      padding: 8px 18px;
-      border-radius: 999px;
-      border: 2px solid var(--border);
-      background: var(--wit);
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--tekst-muted);
-    }
-
-    .zone-tab:hover { border-color: var(--oranje); color: var(--oranje); }
-    .zone-tab.active { color: var(--wit); border-color: transparent; }
-    .zone-tab[data-zone="bewegen"].active    { background: var(--blauw); }
-    .zone-tab[data-zone="ontwikkeling"].active { background: var(--groen); }
-    .zone-tab[data-zone="ademhaling"].active { background: var(--paars); }
-    .zone-tab[data-zone="vroeg"].active      { background: var(--oranje); }
-    .zone-tab[data-zone="specialisaties"].active { background: var(--rood); }
-
-    .protocol-zone { margin-bottom: 24px; }
-
-    .zone-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 20px;
-      background: var(--wit);
-      border: 1px solid var(--border);
-      border-radius: var(--radius) var(--radius) 0 0;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.15s;
-    }
-
-    .zone-header:hover { background: var(--licht); }
-
-    .zone-icon {
-      width: 38px; height: 38px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem;
-      flex-shrink: 0;
-    }
-
-    .zone-icon.bewegen     { background: #E3F6FD; }
-    .zone-icon.ontwikkeling { background: #EDF9E3; }
-    .zone-icon.ademhaling  { background: #F3EAF9; }
-    .zone-icon.vroeg       { background: #FEF2E8; }
-    .zone-icon.specialisaties { background: #FDEAED; }
-
-    .zone-title { flex: 1; }
-    .zone-title h3 { font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800; color: var(--tekst); }
-    .zone-title p { font-size: 0.8rem; color: var(--tekst-muted); margin-top: 1px; }
-    .zone-chevron { color: var(--tekst-muted); transition: transform 0.25s; font-size: 1rem; }
-    .zone-header.open .zone-chevron { transform: rotate(180deg); }
-
-    .zone-body {
-      background: var(--wit);
-      border: 1px solid var(--border);
-      border-top: none;
-      border-radius: 0 0 var(--radius) var(--radius);
-      overflow: hidden;
-    }
-
-    .protocol-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 16px;
-      padding: 14px 20px;
-      border-top: 1px solid var(--border);
-      transition: background 0.15s;
-    }
-
-    .protocol-row:first-child { border-top: none; }
-    .protocol-row:hover { background: var(--licht); }
-
-    .protocol-name { font-size: 0.9rem; font-weight: 600; color: var(--tekst); }
-    .protocol-name small { display: block; color: var(--tekst-muted); font-size: 0.78rem; font-weight: 400; margin-top: 2px; }
-
-    .protocol-btns { display: flex; gap: 6px; flex-shrink: 0; }
-
-    .level-btn {
-      padding: 5px 12px;
-      border-radius: 6px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .level-btn.easy   { background: #E3F6FD; color: #0077A8; }
-    .level-btn.medium { background: #EDF9E3; color: #3A7D1A; }
-    .level-btn.hard   { background: #FEF2E8; color: #A84A00; }
-
-    .level-btn:hover.easy   { background: var(--blauw); color: #fff; }
-    .level-btn:hover.medium { background: var(--groen); color: #fff; }
-    .level-btn:hover.hard   { background: var(--oranje); color: #fff; }
-
-    /* ── VIEWER ── */
-    .protocol-viewer {
-      display: none;
-      margin-top: 28px;
-      background: var(--wit);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .protocol-viewer.visible { display: block; }
-
-    .viewer-header {
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .viewer-header h3 { font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800; }
-    .viewer-level-badge { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; color: var(--wit); }
-    .viewer-close { background: none; border: none; color: var(--tekst-muted); cursor: pointer; font-size: 1.3rem; padding: 0 0 0 16px; }
-    .viewer-close:hover { color: var(--tekst); }
-
-    .viewer-body { padding: 28px 36px; min-height: 200px; max-width: 780px; line-height: 1.75; }
-    .viewer-body h1, .viewer-body h2, .viewer-body h3 { font-family: 'Nunito', sans-serif; color: var(--tekst); margin-top: 1.5em; margin-bottom: 0.5em; }
-    .viewer-body p { margin-bottom: 1em; }
-    .viewer-body ul, .viewer-body ol { margin: 0.5em 0 1em 1.5em; }
-    .viewer-body iframe { width: 100%; height: 600px; border: none; }
-
-    .viewer-loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--tekst-muted); font-size: 0.9rem; gap: 12px; }
-    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--oranje); border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── LOCATIES ── */
-    #locaties { background: var(--wit); }
-
-    .disc-filter { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
-
-    .disc-btn {
-      padding: 7px 16px;
-      border-radius: 999px;
-      border: 2px solid var(--border);
-      background: var(--wit);
-      color: var(--tekst-muted);
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .disc-btn.active { color: var(--wit); border-color: transparent; }
-    .disc-btn.active[data-disc="all"]             { background: var(--tekst); }
-    .disc-btn.active[data-disc="kinderfysiotherapeut"] { background: var(--blauw); }
-    .disc-btn.active[data-disc="logopedist"]      { background: var(--groen); }
-    .disc-btn.active[data-disc="ergotherapeut"]   { background: var(--oranje); }
-    .disc-btn.active[data-disc="psycholoog"]      { background: var(--paars); }
-    .disc-btn.active[data-disc="diëtist"]         { background: var(--rood); }
-
-    #kaart { height: 420px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 32px; z-index: 1; }
-
-    .locaties-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-
-    .locatie-card {
-      background: var(--licht);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      transition: box-shadow 0.2s, transform 0.2s;
-    }
-
-    .locatie-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
-    .locatie-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-    .locatie-naam { font-weight: 700; font-size: 0.95rem; color: var(--tekst); text-decoration: none; }
-    .locatie-naam:hover { text-decoration: underline; }
-    .discipline-tag { font-size: 0.7rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; color: var(--wit); white-space: nowrap; margin-left: 8px; flex-shrink: 0; }
-    .locatie-adres { font-size: 0.85rem; color: var(--tekst-muted); margin-bottom: 12px; line-height: 1.5; }
-    .locatie-contact { display: flex; flex-direction: column; gap: 4px; }
-    .locatie-contact a { font-size: 0.83rem; color: var(--blauw); text-decoration: none; display: flex; align-items: center; gap: 6px; }
-    .locatie-contact a:hover { text-decoration: underline; }
-
-    /* Kaart markers */
-    .disc-marker { display: flex; gap: 3px; align-items: center; }
-    .disc-pill { display: inline-flex; align-items: center; justify-content: center; height: 26px; min-width: 26px; padding: 0 7px; border-radius: 13px; font-size: 0.68rem; font-weight: 800; color: #fff; letter-spacing: 0.02em; box-shadow: 0 2px 6px rgba(0,0,0,0.25); white-space: nowrap; border: 2px solid rgba(255,255,255,0.7); }
-
-    /* ── CTA ── */
-    .cta-section {
-      background: linear-gradient(135deg, #FFF8F0 0%, #F0F9FF 100%);
-      text-align: center;
-      padding: 80px 24px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cta-section h2 { font-family: 'Nunito', sans-serif; font-size: clamp(1.6rem, 3vw, 2.1rem); font-weight: 800; color: var(--tekst); margin-bottom: 14px; }
-    .cta-section p { color: var(--tekst-muted); max-width: 480px; margin: 0 auto 32px; font-size: 0.95rem; }
-
-    .btn-primary {
-      display: inline-block;
-      background: var(--oranje);
-      color: var(--wit);
-      padding: 14px 36px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      text-decoration: none;
-      transition: background 0.2s, transform 0.15s;
-      box-shadow: 0 4px 16px rgba(232,106,26,0.3);
-    }
-
-    .btn-primary:hover { background: #c85a10; transform: translateY(-2px); }
-
-    /* ── FOOTER ── */
-    footer {
-      background: var(--tekst);
-      color: rgba(255,255,255,0.5);
-      text-align: center;
-      padding: 28px 24px;
-      font-size: 0.82rem;
-    }
-
+    footer { background: var(--navy-dark); color: rgba(255,255,255,0.5); padding: 36px 24px; font-size: 0.82rem; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
     footer a { color: rgba(255,255,255,0.7); text-decoration: none; }
-    footer a:hover { color: var(--wit); }
-
-    .leaflet-popup-content-wrapper { border-radius: 10px !important; box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important; }
-    .popup-adres { font-size: 0.82rem; color: var(--tekst-muted); margin-bottom: 10px; }
-    .popup-praktijken { display: flex; flex-direction: column; gap: 8px; }
-    .popup-praktijk { display: flex; align-items: center; gap: 8px; }
-    .popup-praktijk-naam { font-size: 0.83rem; font-weight: 600; color: var(--tekst); }
-    .popup-praktijk-naam a { color: inherit; text-decoration: none; }
-    .popup-praktijk-naam a:hover { text-decoration: underline; }
-
-    /* ── LEGENDA ── */
-    .legenda { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; align-items: center; }
-    .legenda-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--tekst-muted); }
+    footer a:hover { color: var(--white); }
 
     @media (max-width: 700px) {
       .hamburger { display: flex; }
-      nav { display: none; position: absolute; top: 70px; left: 0; right: 0; background: var(--wit); flex-direction: column; padding: 12px 16px 20px; gap: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+      nav { display: none; position: absolute; top: 72px; left: 0; right: 0; background: var(--white); flex-direction: column; padding: 12px 16px 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); border-top: 1px solid var(--grey-border); }
       nav.open { display: flex; }
-      nav a { padding: 10px 16px; border-radius: 8px; }
-      nav a.cta { margin-left: 0; margin-top: 8px; text-align: center; }
-      .hero-stats { gap: 24px; }
-      .protocol-row { grid-template-columns: 1fr; }
-      .protocol-btns { flex-wrap: wrap; }
-      .level-btn { font-size: 0.72rem; padding: 4px 9px; }
-      .viewer-body { padding: 20px; }
+      nav a.cta { margin-top: 8px; text-align: center; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── HEADER ── -->
 <header>
   <div class="header-inner">
-    <a href="#top" class="logo">
-      <img class="logo-icon" src="KO_Logo_transparant.png" alt="Kansrijk Opgroeien logo" />
-      <div class="logo-text">
-        Kansrijk Opgroeien
-        <span>Paramedisch netwerk regio Breda</span>
-      </div>
+    <a href="#" class="logo">
+      <img src="Kansrijkopgroeien_logo.png" alt="Kansrijk Opgroeien" />
+      <div class="logo-text"><span>Kansrijk</span> Opgroeien</div>
     </a>
-    <div class="hamburger" onclick="toggleNav()" aria-label="Menu">
+    <div class="hamburger" onclick="document.getElementById('main-nav').classList.toggle('open')">
       <span></span><span></span><span></span>
     </div>
     <nav id="main-nav">
-      <a href="#specialismen">Specialismen</a>
-      <a href="#locaties">Locaties</a>
-      <a href="ko-aanmelden.html" class="cta">Aansluiten</a>
+      <a href="#zoeken">Zoeken</a>
+      <a href="#specialisaties">Specialisaties</a>
+      <a href="#protocollen">Protocollen</a>
+      <a href="mijn-profiel.html">Mijn profiel</a>
+      <a href="https://vindjefysio.net/therapeut-aanmelden.html">Aanmelden als therapeut</a>
+      <a href="https://vindjefysio.net/aanmelden.html?via=kansrijkopgroeien.net" class="cta">Locatie aanmelden</a>
     </nav>
   </div>
 </header>
 
-<!-- ── HERO ── -->
-<section class="hero" id="top">
-  <div class="hero-inner">
-    <div class="hero-badge">🌳 Regio Breda e.o.</div>
-    <h1>
-      Samen voor elk kind dat<br>
-      <span class="accent-oranje">gezond</span> en
-      <span class="accent-blauw">kansrijk</span>
-      <span class="accent-groen">opgroeit</span>
-    </h1>
-    <p>Een paramedisch netwerk waar kinderfysiotherapeuten, logopedisten, ergotherapeuten en andere zorgverleners samenwerken aan de beste zorg voor kinderen in de regio.</p>
-    <div class="hero-stats">
-      <div class="stat">
-        <div class="stat-num" style="color:var(--blauw)">5+</div>
-        <div class="stat-label">Specialismen</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num" style="color:var(--oranje)">3</div>
-        <div class="stat-label">Leesniveaus</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num" style="color:var(--groen)">6+</div>
-        <div class="stat-label">Praktijken</div>
-      </div>
-    </div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">🌱 Kinderfysiotherapie & paramedische zorg</div>
+    <h1>Gespecialiseerde zorg voor<br><em>kansrijk opgroeien</em></h1>
+    <p>Vind een specialist in motorische ontwikkeling, schrijfproblemen, houding en bewegen bij kinderen — bij u in de buurt.</p>
   </div>
-  <svg class="hero-wave" viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="#F7F9FC"/>
+  <svg class="hero-wave" viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#F8F9FA"/>
   </svg>
 </section>
 
-<!-- ── SPECIALISMEN ── -->
-<section id="specialismen">
-  <div class="section-inner">
-    <div class="section-header">
-      <div class="section-eyebrow" style="color:var(--oranje)">Kinderfysiotherapie</div>
-      <h2>Specialismen & behandelgebieden</h2>
-      <p>Kies een categorie en open het informatiemateriaal op het gewenste leesniveau.</p>
+<!-- ZOEKBALK -->
+<section class="zoek-sectie" id="zoeken">
+  <div class="zoek-inner">
+    <div class="zoek-kaart">
+      <div class="zoek-titel">🔍 Vind een specialist bij u in de buurt</div>
+      <div class="zoek-rij">
+        <input type="text" class="zoek-input" id="zoek-stad" placeholder="Stad of postcode..." />
+        <select class="zoek-select" id="zoek-type">
+          <option value="">Alle specialisaties</option>
+          <option value="1">Motorische ontwikkeling</option>
+          <option value="2">Schrijven & fijne motoriek</option>
+          <option value="3">Sport, groei & blessures</option>
+          <option value="4">Houding & wervelkolom</option>
+          <option value="5">Ademhaling</option>
+          <option value="6">Zuigeling & jong kind</option>
+          <option value="7">Sensorische prikkelverwerking</option>
+          <option value="8">Revalidatie & operatie</option>
+          <option value="9">Complexe ontwikkeling</option>
+          <option value="10">Manuele therapie bij kinderen</option>
+        </select>
+        <button class="zoek-btn" onclick="zoeken()">Zoeken</button>
+      </div>
+      <p class="zoek-hint">💡 Tip: vul uw postcode in voor de meest nauwkeurige resultaten</p>
     </div>
-
-    <!-- Zone: Bewegen & Motoriek -->
-    <div class="protocol-zone">
-      <div class="zone-header open" onclick="toggleZone(this)">
-        <div class="zone-icon bewegen">🏃</div>
-        <div class="zone-title">
-          <h3>Bewegen & Motoriek</h3>
-          <p>Loopproblemen, sportblessures en orthopedische revalidatie</p>
-        </div>
-        <span class="zone-chevron">▾</span>
-      </div>
-      <div class="zone-body">
-        <div class="protocol-row">
-          <div class="protocol-name">Loopproblemen</div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('loopproblemen', 'Loopproblemen', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('loopproblemen', 'Loopproblemen', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('loopproblemen', 'Loopproblemen', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-        <div class="protocol-row">
-          <div class="protocol-name">
-            Sportgerelateerde blessures
-            <small>Acuut en overbelasting</small>
-          </div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('sportblessures', 'Sportblessures', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('sportblessures', 'Sportblessures', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('sportblessures', 'Sportblessures', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-        <div class="protocol-row">
-          <div class="protocol-name">
-            Orthopedische revalidatie na operatie
-            <small>Kinderfysiotherapie bij orthopedie (KOFY)</small>
-          </div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('kofy', 'Orthopedische revalidatie', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('kofy', 'Orthopedische revalidatie', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('kofy', 'Orthopedische revalidatie', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-        <div class="protocol-row">
-          <div class="protocol-name">Groeipijn</div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('groeipijn', 'Groeipijn', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('groeipijn', 'Groeipijn', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('groeipijn', 'Groeipijn', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Zone: Ontwikkeling -->
-    <div class="protocol-zone">
-      <div class="zone-header" onclick="toggleZone(this)">
-        <div class="zone-icon ontwikkeling">🧠</div>
-        <div class="zone-title">
-          <h3>Ontwikkeling</h3>
-          <p>Ontwikkelingsstoornissen, schrijf- en leerproblemen</p>
-        </div>
-        <span class="zone-chevron">▾</span>
-      </div>
-      <div class="zone-body" style="display:none">
-        <div class="protocol-row">
-          <div class="protocol-name">Schrijfproblemen</div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('schrijfproblemen', 'Schrijfproblemen', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('schrijfproblemen', 'Schrijfproblemen', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('schrijfproblemen', 'Schrijfproblemen', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-        <div class="protocol-row">
-          <div class="protocol-name">
-            Ontwikkelingsstoornis
-            <small>O.a. ernstig meervoudige beperking (EMB)</small>
-          </div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('emb', 'Ontwikkelingsstoornis (EMB)', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('emb', 'Ontwikkelingsstoornis (EMB)', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('emb', 'Ontwikkelingsstoornis (EMB)', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-        <div class="protocol-row">
-          <div class="protocol-name">
-            Sensorische Integratie
-            <small>SI-therapie</small>
-          </div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('si', 'Sensorische Integratie', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('si', 'Sensorische Integratie', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('si', 'Sensorische Integratie', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Zone: Ademhaling & Houding -->
-    <div class="protocol-zone">
-      <div class="zone-header" onclick="toggleZone(this)">
-        <div class="zone-icon ademhaling">💨</div>
-        <div class="zone-title">
-          <h3>Ademhaling & Houding</h3>
-          <p>Dysfunctionele ademhaling, scoliose en houdingsproblemen</p>
-        </div>
-        <span class="zone-chevron">▾</span>
-      </div>
-      <div class="zone-body" style="display:none">
-        <div class="protocol-row">
-          <div class="protocol-name">Dysfunctionele ademhaling</div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('ademhaling', 'Dysfunctionele ademhaling', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('ademhaling', 'Dysfunctionele ademhaling', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('ademhaling', 'Dysfunctionele ademhaling', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-        <div class="protocol-row">
-          <div class="protocol-name">
-            Scoliose / Kyfose
-            <small>Schroth-methode</small>
-          </div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('scoliose', 'Scoliose/Kyfose (Schroth)', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('scoliose', 'Scoliose/Kyfose (Schroth)', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('scoliose', 'Scoliose/Kyfose (Schroth)', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Zone: Vroeg & Jong kind -->
-    <div class="protocol-zone">
-      <div class="zone-header" onclick="toggleZone(this)">
-        <div class="zone-icon vroeg">👶</div>
-        <div class="zone-title">
-          <h3>Vroeg & Jong kind</h3>
-          <p>Zuigelingen, peuters en voorkeurshouding</p>
-        </div>
-        <span class="zone-chevron">▾</span>
-      </div>
-      <div class="zone-body" style="display:none">
-        <div class="protocol-row">
-          <div class="protocol-name">
-            Zuigeling / jong kind
-            <small>Tot 2 jaar, o.a. voorkeurshouding</small>
-          </div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('zuigeling', 'Zuigeling/jong kind', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('zuigeling', 'Zuigeling/jong kind', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('zuigeling', 'Zuigeling/jong kind', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-        <div class="protocol-row">
-          <div class="protocol-name">Voorkeurshouding</div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('voorkeurshouding', 'Voorkeurshouding', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('voorkeurshouding', 'Voorkeurshouding', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('voorkeurshouding', 'Voorkeurshouding', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-        <div class="protocol-row">
-          <div class="protocol-name">Manuele therapie bij kinderen</div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('manueel', 'Manuele therapie bij kinderen', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('manueel', 'Manuele therapie bij kinderen', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('manueel', 'Manuele therapie bij kinderen', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Zone: Specialisaties -->
-    <div class="protocol-zone">
-      <div class="zone-header" onclick="toggleZone(this)">
-        <div class="zone-icon specialisaties">⭐</div>
-        <div class="zone-title">
-          <h3>Specialisaties</h3>
-          <p>Gecertificeerde behandelmethoden</p>
-        </div>
-        <span class="zone-chevron">▾</span>
-      </div>
-      <div class="zone-body" style="display:none">
-        <div class="protocol-row">
-          <div class="protocol-name">
-            KOFY
-            <small>Kinderfysiotherapie bij orthopedie</small>
-          </div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('kofy-spec', 'KOFY', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('kofy-spec', 'KOFY', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('kofy-spec', 'KOFY', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-        <div class="protocol-row">
-          <div class="protocol-name">
-            Schroth
-            <small>Scoliosebehandeling</small>
-          </div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('schroth', 'Schroth', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('schroth', 'Schroth', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('schroth', 'Schroth', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-        <div class="protocol-row">
-          <div class="protocol-name">
-            Sensorische Integratie (SI)
-            <small>Gecertificeerde SI-therapie</small>
-          </div>
-          <div class="protocol-btns">
-            <button class="level-btn easy"   onclick="openProtocol('si-spec', 'Sensorische Integratie (SI)', 'Makkelijk', 'INVULLEN')">Makkelijk</button>
-            <button class="level-btn medium" onclick="openProtocol('si-spec', 'Sensorische Integratie (SI)', 'Gemiddeld', 'INVULLEN')">Gemiddeld</button>
-            <button class="level-btn hard"   onclick="openProtocol('si-spec', 'Sensorische Integratie (SI)', 'Complex', 'INVULLEN')">Complex</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Viewer -->
-    <div class="protocol-viewer" id="protocol-viewer">
-      <div class="viewer-header" id="viewer-header">
-        <div>
-          <div style="font-size:0.72rem;opacity:0.6;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.06em">Informatie</div>
-          <h3 id="viewer-title">–</h3>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px">
-          <span class="viewer-level-badge" id="viewer-level">–</span>
-          <button class="viewer-close" onclick="closeProtocol()">✕</button>
-        </div>
-      </div>
-      <div class="viewer-body" id="viewer-body">
-        <div class="viewer-loading"><div class="spinner"></div> Laden…</div>
-      </div>
-    </div>
-
   </div>
 </section>
 
-<!-- ── LOCATIES ── -->
-<section id="locaties" style="background:var(--wit)">
-  <div class="section-inner">
-    <div class="section-header">
-      <div class="section-eyebrow" style="color:var(--blauw)">Netwerk</div>
-      <h2>Aangesloten praktijken</h2>
-      <p>Vind een aangesloten zorgverlener bij jou in de buurt.</p>
+<!-- KLACHTEN TEGELS -->
+<section class="klachten-sectie">
+  <div class="sectie-inner">
+    <div class="sectie-eyebrow">Specialisaties</div>
+    <div class="sectie-titel">Waar heeft uw kind last van?</div>
+    <div class="sectie-sub">Klik op een specialisatie voor gespecialiseerde therapeuten in uw regio.</div>
+    <div class="klachten-grid">
+      <div class="klacht-tegel" onclick="filterOp(1)"><div class="klacht-icon">🏃</div><div class="klacht-naam">Motorische ontwikkeling</div><div class="klacht-sub">Loopt laat, valt veel, coördinatie</div></div>
+      <div class="klacht-tegel" onclick="filterOp(2)"><div class="klacht-icon">✏️</div><div class="klacht-naam">Schrijven & fijne motoriek</div><div class="klacht-sub">Schrijfproblemen, knippen, koppelen</div></div>
+      <div class="klacht-tegel" onclick="filterOp(3)"><div class="klacht-icon">⚽</div><div class="klacht-naam">Sport, groei & blessures</div><div class="klacht-sub">Sportblessures, groeipijn</div></div>
+      <div class="klacht-tegel" onclick="filterOp(4)"><div class="klacht-icon">🦴</div><div class="klacht-naam">Houding & wervelkolom</div><div class="klacht-sub">Scoliose, kromme rug, houding</div></div>
+      <div class="klacht-tegel" onclick="filterOp(5)"><div class="klacht-icon">💨</div><div class="klacht-naam">Ademhaling</div><div class="klacht-sub">Astma, hyperventilatie, adempatroon</div></div>
+      <div class="klacht-tegel" onclick="filterOp(6)"><div class="klacht-icon">👶</div><div class="klacht-naam">Zuigeling & jong kind</div><div class="klacht-sub">Voorkeurshouding, drinken, huilen</div></div>
+      <div class="klacht-tegel" onclick="filterOp(7)"><div class="klacht-icon">🎯</div><div class="klacht-naam">Sensorische prikkelverwerking</div><div class="klacht-sub">Overgevoeligheid, DCD, prikkels</div></div>
+      <div class="klacht-tegel" onclick="filterOp(8)"><div class="klacht-icon">🏥</div><div class="klacht-naam">Revalidatie & operatie</div><div class="klacht-sub">Na operatie, langdurig ziek</div></div>
+      <div class="klacht-tegel" onclick="filterOp(9)"><div class="klacht-icon">🧩</div><div class="klacht-naam">Complexe ontwikkeling</div><div class="klacht-sub">Syndroom, meervoudige beperking</div></div>
+      <div class="klacht-tegel" onclick="filterOp(10)"><div class="klacht-icon">🙌</div><div class="klacht-naam">Manuele therapie</div><div class="klacht-sub">Gewrichten, wervelkolom, nek</div></div>
     </div>
+  </div>
+</section>
 
-    <div class="disc-filter">
-      <button class="disc-btn active" data-disc="all" onclick="filterDisc(this,'all')">Alle disciplines</button>
-      <button class="disc-btn active" data-disc="kinderfysiotherapeut" onclick="filterDisc(this,'kinderfysiotherapeut')">Kinderfysiotherapeut</button>
-      <button class="disc-btn active" data-disc="logopedist" onclick="filterDisc(this,'logopedist')">Logopedist</button>
-      <button class="disc-btn active" data-disc="ergotherapeut" onclick="filterDisc(this,'ergotherapeut')">Ergotherapeut</button>
-      <button class="disc-btn active" data-disc="psycholoog" onclick="filterDisc(this,'psycholoog')">Psycholoog</button>
-      <button class="disc-btn active" data-disc="diëtist" onclick="filterDisc(this,'diëtist')">Diëtist</button>
+<!-- RESULTATEN -->
+<section class="resultaten-sectie" id="resultaten">
+  <div class="resultaten-inner">
+    <div class="context-banner" id="context-banner"></div>
+    <div class="resultaten-header">
+      <div class="resultaten-aantal" id="resultaten-aantal"></div>
     </div>
-
-    <div id="kaart"></div>
-
-    <div class="legenda">
-      <span style="font-size:0.78rem;font-weight:700;color:var(--tekst-muted)">Legenda:</span>
-      <span class="legenda-item"><span class="disc-pill" style="background:var(--blauw)">KF</span> Kinderfysiotherapeut</span>
-      <span class="legenda-item"><span class="disc-pill" style="background:var(--groen)">Lo</span> Logopedist</span>
-      <span class="legenda-item"><span class="disc-pill" style="background:var(--oranje)">Er</span> Ergotherapeut</span>
-      <span class="legenda-item"><span class="disc-pill" style="background:var(--paars)">Ps</span> Psycholoog</span>
-      <span class="legenda-item"><span class="disc-pill" style="background:var(--rood)">Di</span> Diëtist</span>
+    <div class="resultaten-layout">
+      <div class="praktijk-lijst" id="praktijk-lijst">
+        <div class="geen-resultaten"><div class="geen-icon">🌱</div><div>Vul een locatie in of kies een specialisatie om te zoeken.</div></div>
+      </div>
+      <div class="kaart-wrap"><div id="kaart"></div></div>
     </div>
+  </div>
+</section>
 
-    <div class="locaties-grid" id="locaties-grid">
-      <div class="locatie-card" data-discipline="kinderfysiotherapeut">
-        <div class="locatie-card-header">
-          <a href="#" class="locatie-naam">Voorbeeldpraktijk Kinderfysio</a>
-          <span class="discipline-tag" style="background:var(--blauw)">Kinderfysio</span>
-        </div>
-        <div class="locatie-adres">📍 Voorbeeldstraat 1, 4800 AB Breda</div>
-        <div class="locatie-contact">
-          <a href="mailto:info@voorbeeld.nl">✉ info@voorbeeld.nl</a>
-          <a href="tel:+31760000000">📞 076-0000000</a>
-        </div>
+<!-- SPECIALISATIES -->
+<section class="spec-sectie" id="specialisaties">
+  <div class="sectie-inner">
+    <div class="sectie-eyebrow">Expertise</div>
+    <div class="sectie-titel">Wat doet een kinderfysiotherapeut?</div>
+    <div class="sectie-sub">Kinderfysiotherapeuten zijn gespecialiseerd in de motorische en lichamelijke ontwikkeling van kinderen van 0 tot 18 jaar.</div>
+    <div class="spec-grid">
+      <div class="spec-kaart"><div class="spec-icon">🏃</div><div class="spec-naam">Motorische ontwikkeling</div><div class="spec-beschrijving">Begeleiding van kinderen die later lopen, vaker vallen of moeite hebben met bewegen. Onderzoek en behandeling van coördinatieproblemen.</div></div>
+      <div class="spec-kaart"><div class="spec-icon">✏️</div><div class="spec-naam">Schrijven & fijne motoriek</div><div class="spec-beschrijving">Hulp bij schrijfproblemen, moeite met knippen, veters strikken of andere fijnmotorische vaardigheden. Vaak in samenwerking met ergotherapeut.</div></div>
+      <div class="spec-kaart"><div class="spec-icon">👶</div><div class="spec-naam">Zuigelingen & peuters</div><div class="spec-beschrijving">Behandeling van voorkeurshouding (KISS), asymmetrie, drinkmoeite of scheve rug bij baby's en jonge kinderen.</div></div>
+      <div class="spec-kaart"><div class="spec-icon">🎯</div><div class="spec-naam">DCD & prikkelverwerking</div><div class="spec-beschrijving">Begeleiding bij Developmental Coordination Disorder (DCD), sensorische overgevoeligheid of problemen met bewegen in drukke omgevingen.</div></div>
+      <div class="spec-kaart"><div class="spec-icon">⚽</div><div class="spec-naam">Sportblessures bij jongeren</div><div class="spec-beschrijving">Behandeling van groeipijn, Osgood-Schlatter, overbelasting en andere blessures bij sportende kinderen en adolescenten.</div></div>
+      <div class="spec-kaart"><div class="spec-icon">🦴</div><div class="spec-naam">Houding & scoliose</div><div class="spec-beschrijving">Screenen en begeleiden van houdingsproblemen, scoliose en wervelkolomafwijkingen bij kinderen en tieners.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROTOCOLLEN -->
+<section class="protocol-sectie" id="protocollen">
+  <div class="sectie-inner">
+    <div class="sectie-eyebrow">Kennisbank</div>
+    <div class="sectie-titel">Behandelprotocollen</div>
+    <div class="sectie-sub">Wetenschappelijk onderbouwde protocollen voor kinderfysiotherapeuten. Beschikbaar voor aangesloten therapeuten.</div>
+    <div class="protocol-grid">
+      <div class="protocol-kaart">
+        <span class="tag">Motoriek</span>
+        <h3>Motorische ontwikkelingsachterstand</h3>
+        <p>Diagnostiek en behandeling van kinderen met een achterstand in grove motoriek. Inclusief normwaarden en behandeldoelen.</p>
+      </div>
+      <div class="protocol-kaart">
+        <span class="tag">DCD</span>
+        <h3>Developmental Coordination Disorder</h3>
+        <p>Screeningsprotocol en behandelrichtlijn voor DCD bij kinderen van 5-12 jaar. Gebaseerd op EACD-richtlijnen.</p>
+      </div>
+      <div class="protocol-kaart protocol-binnenkort">
+        <span class="tag" style="background:var(--grey-bg);color:var(--text-muted)">Binnenkort</span>
+        <h3>Schrijfproblemen & dysgrafie</h3>
+        <p>Protocol voor screening en begeleiding bij schrijfproblemen. In samenwerking met ergotherapeuten.</p>
+      </div>
+      <div class="protocol-kaart protocol-binnenkort">
+        <span class="tag" style="background:var(--grey-bg);color:var(--text-muted)">Binnenkort</span>
+        <h3>Zuigeling met voorkeurshouding</h3>
+        <p>Diagnostisch protocol voor KISS en asymmetrie bij baby's van 0-6 maanden.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── CTA ── -->
-<section class="cta-section">
-  <h2>Aansluiten bij Kansrijk Opgroeien?</h2>
-  <p>Sluit jouw praktijk aan en werk samen aan de beste zorg voor kinderen in de regio Breda.</p>
-  <a href="ko-aanmelden.html" class="btn-primary">Aanmelden →</a>
+<!-- AANMELDEN CTA -->
+<section class="aanmeld-sectie">
+  <div class="sectie-inner">
+    <div style="text-align:center;color:white;margin-bottom:32px">
+      <div style="font-size:0.8rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;opacity:0.8;margin-bottom:8px">Doe mee</div>
+      <h2 style="font-size:clamp(1.4rem,3vw,1.9rem);font-weight:700;margin-bottom:10px">Word onderdeel van het netwerk</h2>
+      <p style="opacity:0.88;max-width:500px;margin:0 auto;font-size:0.95rem">Bent u kinderfysiotherapeut of heeft u een praktijk met kinderfysiotherapeuten? Sluit u aan bij Kansrijk Opgroeien.</p>
+    </div>
+    <div class="aanmeld-inner">
+      <div class="aanmeld-kaart">
+        <div style="font-size:2rem;margin-bottom:12px">👩‍⚕️</div>
+        <h3>Aanmelden als therapeut</h3>
+        <p>Heeft u al een praktijkcode van uw beheerder? Meld u dan aan als kinderfysiotherapeut via het therapeutenformulier.</p>
+        <a class="aanmeld-btn" href="https://vindjefysio.net/therapeut-aanmelden.html">Aanmelden als therapeut →</a>
+      </div>
+      <div class="aanmeld-kaart">
+        <div style="font-size:2rem;margin-bottom:12px">🏥</div>
+        <h3>Praktijk aanmelden</h3>
+        <p>Bent u praktijkhouder of beheerder? Meld uw locatie aan en ontvang een praktijkcode voor uw therapeuten.</p>
+        <a class="aanmeld-btn donker" href="https://vindjefysio.net/aanmelden.html?via=kansrijkopgroeien.net">Locatie aanmelden →</a>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ── FOOTER ── -->
 <footer>
-  <p>© 2025 Kansrijk Opgroeien – Paramedisch netwerk regio Breda &nbsp;·&nbsp; Samen voor elk kind</p>
+  <div class="footer-inner">
+    <div>
+      <strong style="color:white">Kansrijk Opgroeien</strong><br>
+      Onderdeel van het <a href="https://vindjefysio.net">VindJeFysio Netwerk</a>
+    </div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap">
+      <a href="privacy.html">Privacyverklaring</a>
+      <a href="https://vindjefysio.net">VindJeFysio.net</a>
+      <a href="mailto:info@vindjefysio.net">info@vindjefysio.net</a>
+    </div>
+  </div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
+const SUPABASE_URL = 'https://islujznszevdynguhjdc.supabase.co';
+const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzbHVqem5zemV2ZHluZ3VoamRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NDYzMDAsImV4cCI6MjA5NzIyMjMwMH0.wh3RXZRKfpfArr3YBYu8ktE7xv1inwDD72Vq3LJl3QQ';
+const HEADERS = { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}` };
 
-  function toggleNav() { document.getElementById('main-nav').classList.toggle('open'); }
+// Subcategorie IDs voor Kansrijk Opgroeien (1-10)
+const KO_SUBCAT_IDS = [1,2,3,4,5,6,7,8,9,10];
+const SUBCAT_NAMEN = {
+  1:'Motorische ontwikkeling', 2:'Schrijven & fijne motoriek', 3:'Sport, groei & blessures',
+  4:'Houding & wervelkolom', 5:'Ademhaling', 6:'Zuigeling & jong kind',
+  7:'Sensorische prikkelverwerking', 8:'Revalidatie & operatie', 9:'Complexe ontwikkeling',
+  10:'Manuele therapie bij kinderen'
+};
 
-  function toggleZone(header) {
-    const body = header.nextElementSibling;
-    const isOpen = header.classList.contains('open');
-    header.classList.toggle('open');
-    body.style.display = isOpen ? 'none' : 'block';
-  }
+let allePraktijken = [];
+let allTherapeutenData = [];
+let actieveSubcat = null;
+let kaart = null;
+let markers = [];
 
-  // Niveau kleuren
-  const NIVEAU_STIJL = {
-    'Makkelijk': { bg: 'var(--blauw)',  text: '#fff' },
-    'Gemiddeld':  { bg: 'var(--groen)', text: '#fff' },
-    'Complex':    { bg: 'var(--oranje)',text: '#fff' },
-  };
+async function laadData() {
+  try {
+    const [tResp, pResp, kResp, tpResp] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/therapeuten?actief=eq.true&select=id,voornaam,achternaam,foto_url,disciplines,code`, { headers: HEADERS }),
+      fetch(`${SUPABASE_URL}/rest/v1/praktijken?actief=eq.true&select=id,naam,straat,postcode,stad,website,lat,lng`, { headers: HEADERS }),
+      fetch(`${SUPABASE_URL}/rest/v1/therapeut_subcategorieen?select=therapeut_id,subcategorie_id`, { headers: HEADERS }),
+      fetch(`${SUPABASE_URL}/rest/v1/therapeut_praktijken?select=therapeut_id,praktijk_id`, { headers: HEADERS })
+    ]);
 
-  async function openProtocol(id, naam, niveau, docId) {
-    const viewer  = document.getElementById('protocol-viewer');
-    const body    = document.getElementById('viewer-body');
-    const header  = document.getElementById('viewer-header');
-    const badge   = document.getElementById('viewer-level');
+    const therapeuten = await tResp.json();
+    const praktijken = await pResp.json();
+    const subcatKoppelingen = await kResp.json();
+    const praktijkKoppelingen = await tpResp.json();
 
-    document.getElementById('viewer-title').textContent = naam;
-    badge.textContent = niveau;
-    const stijl = NIVEAU_STIJL[niveau] || { bg: 'var(--oranje)', text: '#fff' };
-    badge.style.background = stijl.bg;
-    badge.style.color = stijl.text;
-    header.style.borderBottom = `3px solid ${stijl.bg}`;
+    // Filter therapeuten die minstens 1 KO subcategorie hebben
+    const koTherapeutIds = new Set(
+      subcatKoppelingen
+        .filter(k => KO_SUBCAT_IDS.includes(k.subcategorie_id))
+        .map(k => k.therapeut_id)
+    );
 
-    body.innerHTML = '<div class="viewer-loading"><div class="spinner"></div> Laden…</div>';
-    viewer.classList.add('visible');
-    setTimeout(() => viewer.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    allTherapeutenData = therapeuten
+      .filter(t => koTherapeutIds.has(t.id))
+      .map(t => {
+        const koppeling = praktijkKoppelingen.find(k => k.therapeut_id === t.id);
+        const praktijk = koppeling ? praktijken.find(p => p.id === koppeling.praktijk_id) : null;
+        const subcats = subcatKoppelingen.filter(k => k.therapeut_id === t.id).map(k => k.subcategorie_id);
+        return { ...t, praktijken: praktijk, subcats };
+      });
 
-    const niveauSlug = { 'Makkelijk': 'makkelijk', 'Gemiddeld': 'gemiddeld', 'Complex': 'complex' }[niveau];
-    const statischBestand = `specialismen/${id}-${niveauSlug}.html`;
-
-    try {
-      const resp = await fetch(statischBestand);
-      if (resp.ok) { body.innerHTML = await resp.text(); return; }
-    } catch(e) {}
-
-    if (docId && docId !== 'INVULLEN') {
-      const iframe = document.createElement('iframe');
-      iframe.title = naam;
-      iframe.style.cssText = 'width:100%;height:600px;border:none;';
-      iframe.src = `https://docs.google.com/document/d/${docId}/preview`;
-      body.innerHTML = '';
-      body.appendChild(iframe);
-    } else {
-      body.innerHTML = `<div style="padding:40px;text-align:center;color:var(--tekst-muted)">
-        <div style="font-size:2rem;margin-bottom:12px">📄</div>
-        <p>Dit document is nog niet gekoppeld.</p>
-        <p style="font-size:0.85rem;margin-top:8px">Voeg de Google Doc ID toe in de configuratie.</p>
-      </div>`;
-    }
-  }
-
-  function closeProtocol() {
-    document.getElementById('protocol-viewer').classList.remove('visible');
-    document.getElementById('viewer-body').innerHTML = '';
-  }
-
-  // ── KAART ──
-  const DISC_CONFIG = {
-    'kinderfysiotherapeut': { label: 'KF', color: '#00AFE1' },
-    'logopedist':           { label: 'Lo', color: '#6BBF2E' },
-    'ergotherapeut':        { label: 'Er', color: '#E86A1A' },
-    'psycholoog':           { label: 'Ps', color: '#7B3FA0' },
-    'diëtist':              { label: 'Di', color: '#E8193A' },
-  };
-
-  const LOCATIES = [
-    {
-      adres: 'Voorbeeldstraat 1, Breda',
-      lat: 51.5988, lng: 4.7763,
-      praktijken: [
-        { naam: 'Voorbeeldpraktijk Kinderfysio', url: '#', disciplines: ['kinderfysiotherapeut'] }
-      ]
-    }
-  ];
-
-  const actieveDisc = new Set(Object.keys(DISC_CONFIG));
-
-  function alleDisc(loc) { return [...new Set(loc.praktijken.flatMap(p => p.disciplines))]; }
-
-  function maakMarkerHTML(loc, actief) {
-    return alleDisc(loc)
-      .filter(d => actief.size === 0 || actief.has(d))
-      .map(d => {
-        const cfg = DISC_CONFIG[d];
-        return cfg ? `<span class="disc-pill" style="background:${cfg.color}">${cfg.label}</span>` : '';
-      }).join('');
-  }
-
-  function maakPopupHTML(loc) {
-    const rijen = loc.praktijken.map(p => {
-      const pills = p.disciplines.map(d => {
-        const cfg = DISC_CONFIG[d];
-        return cfg ? `<span class="disc-pill" style="background:${cfg.color};font-size:0.65rem;height:20px;min-width:20px">${cfg.label}</span>` : '';
-      }).join('');
-      return `<div class="popup-praktijk">
-        <div style="display:flex;gap:3px;flex-shrink:0">${pills}</div>
-        <div class="popup-praktijk-naam"><a href="${p.url}" target="_blank">${p.naam}</a></div>
-      </div>`;
-    }).join('');
-    return `<div class="popup-adres">📍 <strong>${loc.adres}</strong></div>
-            <div class="popup-praktijken">${rijen}</div>`;
-  }
-
-  const kaart = L.map('kaart').setView([51.5988, 4.7763], 12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>', maxZoom: 18
-  }).addTo(kaart);
-
-  const markers = LOCATIES.map(loc => {
-    const icon = L.divIcon({
-      className: '',
-      html: `<div class="disc-marker">${maakMarkerHTML(loc, new Set())}</div>`,
-      iconAnchor: [0,13], popupAnchor: [13,-13]
+    // Groepeer per praktijk
+    const praktijkMap = {};
+    allTherapeutenData.forEach(t => {
+      if (!t.praktijken) return;
+      const pid = t.praktijken.id;
+      if (!praktijkMap[pid]) praktijkMap[pid] = { ...t.praktijken, therapeuten: [] };
+      praktijkMap[pid].therapeuten.push(t);
     });
-    const marker = L.marker([loc.lat, loc.lng], { icon }).addTo(kaart).bindPopup(maakPopupHTML(loc), { maxWidth: 260 });
-    return { loc, marker };
+    allePraktijken = Object.values(praktijkMap);
+
+    // Init kaart
+    kaart = L.map('kaart').setView([51.58, 4.8], 9);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(kaart);
+
+    renderResultaten(allePraktijken);
+  } catch(e) {
+    console.error('Laad fout:', e);
+  }
+}
+
+function filterOp(subcatId) {
+  actieveSubcat = subcatId;
+  document.querySelectorAll('.klacht-tegel').forEach((el, i) => {
+    el.classList.toggle('actief', i === subcatId - 1);
   });
+  document.getElementById('zoek-type').value = subcatId;
+  zoeken();
+}
 
-  function updateFilter() {
-    document.querySelectorAll('.locatie-card').forEach(card => {
-      const match = actieveDisc.size === Object.keys(DISC_CONFIG).length || actieveDisc.has(card.dataset.discipline);
-      card.style.display = match ? '' : 'none';
-    });
+function zoeken() {
+  const stad = document.getElementById('zoek-stad').value.trim().toLowerCase();
+  const subcatId = parseInt(document.getElementById('zoek-type').value) || actieveSubcat;
+  const stadSchoon = stad.replace(/\s/g, '');
 
-    markers.forEach(({ loc, marker }) => {
-      const zichtbaar = alleDisc(loc).some(d => actieveDisc.has(d));
-      const alleActief = actieveDisc.size === Object.keys(DISC_CONFIG).length;
-      const pillsHTML = maakMarkerHTML(loc, alleActief ? new Set() : actieveDisc);
-      if (zichtbaar && pillsHTML) {
-        marker.addTo(kaart);
-        marker.setIcon(L.divIcon({ className: '', html: `<div class="disc-marker">${pillsHTML}</div>`, iconAnchor: [0,13], popupAnchor: [13,-13] }));
-      } else { marker.remove(); }
+  let gefilterd = [...allePraktijken];
+
+  if (stad) {
+    gefilterd = gefilterd.filter(p => {
+      const pStad = (p.stad || '').toLowerCase();
+      const pPostcode = (p.postcode || '').toLowerCase().replace(/\s/g, '');
+      return pStad.includes(stad) || pPostcode.includes(stadSchoon);
     });
   }
 
-  function filterDisc(btn, disc) {
-    if (disc === 'all') {
-      Object.keys(DISC_CONFIG).forEach(d => actieveDisc.add(d));
-      document.querySelectorAll('.disc-btn').forEach(b => b.classList.add('active'));
-    } else {
-      document.querySelector('.disc-btn[data-disc="all"]').classList.remove('active');
-      if (actieveDisc.has(disc) && actieveDisc.size > 1) { actieveDisc.delete(disc); btn.classList.remove('active'); }
-      else { actieveDisc.add(disc); btn.classList.add('active'); }
-      if (actieveDisc.size === Object.keys(DISC_CONFIG).length)
-        document.querySelector('.disc-btn[data-disc="all"]').classList.add('active');
-    }
-    updateFilter();
+  if (subcatId) {
+    gefilterd = gefilterd.filter(p =>
+      p.therapeuten.some(t => t.subcats.includes(subcatId))
+    ).map(p => ({
+      ...p,
+      therapeuten: p.therapeuten.filter(t => t.subcats.includes(subcatId))
+    }));
   }
 
+  // Update context banner
+  const banner = document.getElementById('context-banner');
+  let bannerTekst = '';
+  if (subcatId && SUBCAT_NAMEN[subcatId]) bannerTekst += `🔍 ${SUBCAT_NAMEN[subcatId]}`;
+  if (stad) bannerTekst += (bannerTekst ? ' · ' : '🔍 ') + stad;
+  banner.textContent = bannerTekst;
+  banner.style.display = bannerTekst ? 'block' : 'none';
+
+  renderResultaten(gefilterd);
+  document.getElementById('resultaten').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderResultaten(lijst) {
+  const el = document.getElementById('praktijk-lijst');
+  document.getElementById('resultaten-aantal').textContent =
+    lijst.length > 0 ? `${lijst.length} praktijk${lijst.length !== 1 ? 'en' : ''} gevonden` : '';
+
+  // Verwijder markers
+  markers.forEach(m => kaart.removeLayer(m));
+  markers = [];
+
+  if (lijst.length === 0) {
+    el.innerHTML = '<div class="geen-resultaten"><div class="geen-icon">🌱</div><div>Geen specialisten gevonden voor deze zoekopdracht.</div></div>';
+    return;
+  }
+
+  el.innerHTML = lijst.map(p => {
+    const therapeutenHTML = p.therapeuten.map(t => {
+      const fotoHtml = t.foto_url
+        ? `<img class="therapeut-foto" src="${t.foto_url}" alt="${t.voornaam}" onerror="this.style.display='none'" />`
+        : `<div class="therapeut-avatar">👤</div>`;
+      return `<div class="therapeut-rij">${fotoHtml}<div><div class="therapeut-naam">${t.voornaam} ${t.achternaam}</div><div class="therapeut-disc">${(t.disciplines || []).join(', ')}</div></div></div>`;
+    }).join('');
+
+    return `<div class="praktijk-kaart" onclick="focusPraktijk(${p.lat}, ${p.lng}, '${p.naam}')">
+      <div class="praktijk-naam">${p.naam}</div>
+      <div class="praktijk-adres">📍 ${p.straat || ''}, ${p.stad || ''}</div>
+      ${p.website ? `<div style="font-size:0.78rem;margin-top:4px"><a href="${p.website}" target="_blank" style="color:var(--oranje)">Website →</a></div>` : ''}
+      <div class="praktijk-therapeuten">${therapeutenHTML}</div>
+    </div>`;
+  }).join('');
+
+  // Voeg markers toe
+  const bounds = [];
+  lijst.forEach(p => {
+    if (!p.lat || !p.lng) return;
+    const marker = L.circleMarker([p.lat, p.lng], {
+      radius: 10, fillColor: '#E8735A', color: '#fff', weight: 2, fillOpacity: 0.9
+    }).addTo(kaart).bindPopup(`<strong>${p.naam}</strong><br>${p.straat || ''}, ${p.stad || ''}`);
+    markers.push(marker);
+    bounds.push([p.lat, p.lng]);
+  });
+  if (bounds.length > 0) kaart.fitBounds(bounds, { padding: [40, 40] });
+}
+
+function focusPraktijk(lat, lng, naam) {
+  if (!lat || !lng) return;
+  kaart.setView([lat, lng], 14);
+  markers.forEach(m => {
+    if (m.getLatLng().lat === lat && m.getLatLng().lng === lng) m.openPopup();
+  });
+}
+
+laadData();
 </script>
 </body>
 </html>
