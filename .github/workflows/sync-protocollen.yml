@@ -7,12 +7,19 @@ on:
     - cron: '0 1 * * *'   # 01:00 UTC = 02:00 of 03:00 NL-tijd
   workflow_dispatch:        # handmatig draaien via GitHub-website kan ook
 
+# Nodig zodat de workflow automatisch mag terugschrijven (committen + pushen)
+# naar de repo. Zonder dit krijg je "exit code 128" bij git push.
+permissions:
+  contents: write
+
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
       - name: Repo ophalen
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Python instellen
         uses: actions/setup-python@v5
