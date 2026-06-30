@@ -1,0 +1,31 @@
+name: Sync protocollen vanuit Google Docs
+
+# Draait elke nacht om 03:00 Nederlandse tijd (= 01:00 of 02:00 UTC,
+# afhankelijk van zomer-/wintertijd — cron werkt altijd op UTC)
+on:
+  schedule:
+    - cron: '0 1 * * *'   # 01:00 UTC = 02:00 of 03:00 NL-tijd
+  workflow_dispatch:        # handmatig draaien via GitHub-website kan ook
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo ophalen
+        uses: actions/checkout@v4
+
+      - name: Python instellen
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Protocollen genereren vanuit Google Docs
+        run: python sync_protocollen.py
+
+      - name: Wijzigingen committen (alleen als er iets veranderd is)
+        run: |
+          git config user.name "Kansrijk Opgroeien Bot"
+          git config user.email "bot@kansrijkopgroeien.net"
+          git add protocollen/ protocollen.html sitemap.xml
+          git diff --staged --quiet || git commit -m "Automatische sync protocollen vanuit Google Docs"
+          git push
