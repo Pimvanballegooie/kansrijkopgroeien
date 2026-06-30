@@ -300,17 +300,21 @@ def gedeelde_css():
     '''
 
 
-def header_html(teruglink_label='← Alle protocollen', teruglink_url='../protocollen.html'):
+def header_html(teruglink_label='← Alle protocollen', teruglink_url='../protocollen.html', root_pad='../'):
+    """
+    root_pad: '../' voor pagina's in de protocollen/-submap,
+              ''     voor protocollen.html zelf (staat in de root)
+    """
     return f'''<header>
   <div class="header-inner">
-    <a href="../index.html" class="logo">
-      <img src="../{LOGO_BESTAND}" alt="{SITE_NAAM}" />
+    <a href="{root_pad}index.html" class="logo">
+      <img src="{root_pad}{LOGO_BESTAND}" alt="{SITE_NAAM}" />
       <div class="logo-text"><span>Kansrijk</span> Opgroeien</div>
     </a>
     <nav>
       <a href="{teruglink_url}">{teruglink_label}</a>
-      <a href="../index.html#zoeken">Zoeken</a>
-      <a href="../therapeut-aanmelden.html" class="cta">Aanmelden</a>
+      <a href="{root_pad}index.html#zoeken">Zoeken</a>
+      <a href="{root_pad}therapeut-aanmelden.html" class="cta">Aanmelden</a>
     </nav>
   </div>
 </header>'''
@@ -808,7 +812,7 @@ protocollen_html = f'''<!DOCTYPE html>
 </head>
 <body>
 
-{header_html('../index.html', '../index.html')}
+{header_html('← Home', 'index.html', root_pad='')}
 
 <div class="page-hero">
   <div class="page-hero-inner">
