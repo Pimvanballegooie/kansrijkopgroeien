@@ -5,24 +5,23 @@ from datetime import date
 # ─────────────────────────────────────────────────────────────
 # CONFIG — pas aan per protocol dat je toevoegt
 # ─────────────────────────────────────────────────────────────
-# protocollen-config.json bevat de Google Docs IDs per protocol.
-# Structuur:
+#
+# protocollen-config.json structuur:
 # {
 #   "protocollen": [
 #     {
-#       "id": "motorische-ontwikkelingsachterstand",
-#       "naam": "Motorische ontwikkelingsachterstand",
-#       "zone": "motoriek",
+#       "id": "schrijfproblemen-fijne-motoriek",
+#       "naam": "Motorische schrijfproblemen bij kinderen",
+#       "zone": "schrijven",
 #       "niveaus": {
 #         "makkelijk": "GOOGLE_DOC_ID_HIER",
-#         "gemiddeld": "GOOGLE_DOC_ID_HIER",
 #         "complex":   "GOOGLE_DOC_ID_HIER"
 #       }
 #     }
 #   ]
 # }
 #
-# Zone-waarden (gebruik exact deze strings):
+# Zone-waarden:
 #   motoriek · schrijven · sport · houding · ademhaling
 #   zuigeling · sensorisch · revalidatie · complexe-ontwikkeling · manueel
 
@@ -30,7 +29,7 @@ with open('protocollen-config.json', 'r', encoding='utf-8') as f:
     config = json.load(f)
 
 # ─────────────────────────────────────────────────────────────
-# ZONES
+# ZONES & BRANDING
 # ─────────────────────────────────────────────────────────────
 ZONES = {
     'motoriek':              'Motorische ontwikkeling',
@@ -46,28 +45,116 @@ ZONES = {
 }
 
 ZONE_ICONS = {
-    'motoriek':              '🏃',
-    'schrijven':             '✏️',
-    'sport':                 '⚽',
-    'houding':               '🦴',
-    'ademhaling':            '💨',
-    'zuigeling':             '👶',
-    'sensorisch':            '🎯',
-    'revalidatie':           '🏥',
-    'complexe-ontwikkeling': '🧩',
-    'manueel':               '🙌',
+    'motoriek': '🏃', 'schrijven': '✏️', 'sport': '⚽',
+    'houding': '🦴', 'ademhaling': '💨', 'zuigeling': '👶',
+    'sensorisch': '🎯', 'revalidatie': '🏥',
+    'complexe-ontwikkeling': '🧩', 'manueel': '🙌',
 }
 
-SITE_URL   = 'https://kansrijkopgroeien.net'
-SITE_NAAM  = 'Kansrijk Opgroeien'
-LOGO_BESTAND = 'Kansrijkopgroeien_logo.png'
-KLEUR_PRIMARY = '#E8735A'   # oranje
-KLEUR_LIGHT   = '#FDF0ED'
-KLEUR_NAVY    = '#2C3E50'
-KLEUR_TEAL    = '#4CAF50'   # groen accent
+SITE_URL       = 'https://kansrijkopgroeien.net'
+SITE_NAAM      = 'Kansrijk Opgroeien'
+LOGO_BESTAND   = 'Kansrijkopgroeien_logo.png'
+KLEUR_ORANJE   = '#E8735A'
+KLEUR_ORANJE_L = '#FDF0ED'
+KLEUR_NAVY     = '#2C3E50'
+KLEUR_GREY_BG  = '#F8F9FA'
+KLEUR_GREY_B   = '#E8ECF0'
 
 # ─────────────────────────────────────────────────────────────
-# HTML VERWERKING
+# SHORTCODE VERWERKING
+# Ondersteunde shortcodes in Google Docs:
+#
+#   [CALLOUT: groen | 💡 Titel]   → groen infoblock
+#   [CALLOUT: geel | ⚠️ Titel]   → gele waarschuwing
+#   [CALLOUT: blauw | 📌 Titel]  → blauwe info
+#   [CALLOUT: rood | 🚫 Titel]   → rode waarschuwing
+#   [/CALLOUT]                    → sluit callout
+#
+#   [TABEL]                       → start tabel
+#   | Kolom 1 | Kolom 2 |        → header rij
+#   | cel 1   | cel 2   |        → data rij
+#   [/TABEL]                      → sluit tabel
+#
+#   [VIDEO: naam | url]           → video knop (al bestaand)
+# ─────────────────────────────────────────────────────────────
+
+CALLOUT_KLEUREN = {
+    'groen': {'bg': '#EDF7EE', 'border': '#4CAF50', 'titel': '#2e7d32'},
+    'geel':  {'bg': '#FEF9E7', 'border': '#F39C12', 'titel': '#7d5a00'},
+    'blauw': {'bg': '#EAF4FB', 'border': '#2980B9', 'titel': '#1a4a72'},
+    'rood':  {'bg': '#FDEDEC', 'border': '#C0392B', 'titel': '#7b1a12'},
+    'oranje':{'bg': KLEUR_ORANJE_L, 'border': KLEUR_ORANJE, 'titel': '#8a3520'},
+}
+
+def verwerk_shortcodes(body):
+    """Verwerk [CALLOUT:] en [TABEL] shortcodes naar HTML."""
+
+    # [CALLOUT: kleur | Titel] ... [/CALLOUT]
+    def vervang_callout(m):
+        kleur = m.group(1).strip().lower()
+        titel = m.group(2).strip()
+        inhoud = m.group(3).strip()
+        k = CALLOUT_KLEUREN.get(kleur, CALLOUT_KLEUREN['blauw'])
+        return (
+            f'<div style="background:{k["bg"]};border-left:4px solid {k["border"]};'
+            f'border-radius:12px;padding:18px 20px;margin:20px 0;">'
+            f'<div style="font-size:0.82rem;font-weight:700;text-transform:uppercase;'
+            f'letter-spacing:0.06em;color:{k["titel"]};margin-bottom:8px;">{titel}</div>'
+            f'<div style="font-size:0.92rem;color:{KLEUR_NAVY};line-height:1.65;">'
+            f'{inhoud}</div></div>'
+        )
+
+    body = re.sub(
+        r'\[CALLOUT:\s*(\w+)\s*\|\s*([^\]]+)\](.*?)\[/CALLOUT\]',
+        vervang_callout,
+        body,
+        flags=re.DOTALL
+    )
+
+    # [TABEL] pipe-tabel → HTML tabel
+    def vervang_tabel(m):
+        regels = [r.strip() for r in m.group(1).strip().split('\n') if r.strip()]
+        if not regels:
+            return ''
+        html = (
+            f'<table style="width:100%;border-collapse:collapse;margin:16px 0;'
+            f'font-size:0.88rem;border-radius:10px;overflow:hidden;">'
+        )
+        for i, regel in enumerate(regels):
+            cellen = [c.strip() for c in regel.strip('|').split('|')]
+            if i == 0:
+                html += '<thead><tr>'
+                for cel in cellen:
+                    html += (
+                        f'<th style="background:{KLEUR_NAVY};color:white;'
+                        f'padding:10px 14px;text-align:left;font-size:0.82rem;'
+                        f'font-weight:600;">{cel}</th>'
+                    )
+                html += '</tr></thead><tbody>'
+            else:
+                bg = KLEUR_GREY_BG if i % 2 == 0 else 'white'
+                html += f'<tr style="background:{bg};">'
+                for cel in cellen:
+                    html += (
+                        f'<td style="padding:10px 14px;border-bottom:1px solid '
+                        f'{KLEUR_GREY_B};vertical-align:top;">{cel}</td>'
+                    )
+                html += '</tr>'
+        html += '</tbody></table>'
+        return html
+
+    body = re.sub(
+        r'\[TABEL\](.*?)\[/TABEL\]',
+        vervang_tabel,
+        body,
+        flags=re.DOTALL
+    )
+
+    return body
+
+
+# ─────────────────────────────────────────────────────────────
+# HTML VERWERKING (Google Docs → schone HTML)
 # ─────────────────────────────────────────────────────────────
 class TextExtractor(HTMLParser):
     def __init__(self):
@@ -88,7 +175,28 @@ class TextExtractor(HTMLParser):
     def get_text(self):
         return ' '.join(' '.join(self.text).split())
 
+
+def verwijder_google_backslashes(body):
+    """
+    Google Docs voegt bij export automatisch backslashes toe vóór speciale
+    tekens zoals [ ] + - * | (markdown-achtige escaping). Dit verwijderen
+    we vóórdat we shortcodes zoals [TABEL] en [CALLOUT] gaan herkennen,
+    anders worden ze niet gevonden door de reguliere expressies.
+    """
+    body = body.replace('\\[', '[')
+    body = body.replace('\\]', ']')
+    body = body.replace('\\+', '+')
+    body = body.replace('\\-', '-')
+    body = body.replace('\\*', '*')
+    body = body.replace('\\|', '|')
+    return body
+
+
 def opschonen_html(body):
+    # ALTIJD als eerste stap: Google Docs escape-tekens verwijderen,
+    # anders worden [TABEL] en [CALLOUT] niet herkend.
+    body = verwijder_google_backslashes(body)
+
     body = re.sub(r'<style[^>]*>.*?</style>', '', body, flags=re.DOTALL)
     body = re.sub(r'<script[^>]*>.*?</script>', '', body, flags=re.DOTALL)
     body = re.sub(r'<img[^>]*/?>', '', body)
@@ -112,96 +220,44 @@ def opschonen_html(body):
     body = re.sub(r'<hr[^>]*>', '<hr>', body)
     body = re.sub(r'\n{3,}', '\n\n', body)
 
-    # Fysioefeningen-links omzetten naar knoppen
-    def maak_knop_van_link(match):
-        url = match.group(1)
-        linktekst = re.sub(r'<[^>]+>', '', match.group(2)).strip()
-        naam = linktekst if linktekst and not linktekst.startswith('http') else \
-               url.split('/')[-1].replace('-', ' ').strip().capitalize()
-        return (
-            f'<a href="{url}" target="_blank" rel="noopener" '
-            f'style="display:inline-flex;align-items:center;gap:8px;margin:6px 0;padding:10px 18px;'
-            f'background:{KLEUR_LIGHT};color:{KLEUR_PRIMARY};border:2px solid {KLEUR_PRIMARY};border-radius:8px;'
-            f'font-size:0.875rem;font-weight:600;text-decoration:none;">&#128249; {naam}</a>'
-        )
-    body = re.sub(
-        r'<a href="(https?://(?:www\.)?fysioefeningen\.nl/[^"]+)"[^>]*>(.*?)</a>',
-        maak_knop_van_link, body, flags=re.DOTALL
-    )
-
-    # [VIDEO: naam | url] shortcodes
+    # [VIDEO: naam | url] shortcode
     def maak_video_knop(match):
         naam = match.group(1).strip()
         url  = match.group(2).strip()
         return (
             f'<a href="{url}" target="_blank" rel="noopener" '
-            f'style="display:inline-flex;align-items:center;gap:6px;margin:4px 0;padding:6px 14px;'
-            f'background:{KLEUR_LIGHT};color:{KLEUR_PRIMARY};border:1.5px solid {KLEUR_PRIMARY};border-radius:6px;'
+            f'style="display:inline-flex;align-items:center;gap:6px;margin:4px 0;'
+            f'padding:6px 14px;background:{KLEUR_ORANJE_L};color:{KLEUR_ORANJE};'
+            f'border:1.5px solid {KLEUR_ORANJE};border-radius:6px;'
             f'font-size:0.8rem;font-weight:600;text-decoration:none;">📹 {naam}</a>'
         )
     body = re.sub(r'\[VIDEO:\s*([^|\]]+)\|\s*(https?://[^\]]+)\]', maak_video_knop, body)
 
+    # Opschonen lege tags
     body = re.sub(r'<span>\s*</span>', '', body)
     body = re.sub(r'<span>(.*?)</span>', r'\1', body)
     body = re.sub(r'<p>\s*</p>', '', body)
     body = re.sub(r'<div>\s*</div>', '', body)
 
+    # Shortcodes verwerken
+    body = verwerk_shortcodes(body)
+
     return body.strip()
 
-def extraheer_preview(body, max_alineas=3):
-    body = opschonen_html(body)
-    blokken = re.findall(r'<(p|h1|h2|h3)[^>]*>.*?</\1>', body, re.DOTALL | re.IGNORECASE)
+
+def extraheer_preview(body, max_alineas=4):
+    """Eerste alinea's voor de preview op protocollen.html."""
+    body_schoon = opschonen_html(body)
+    blokken = re.findall(r'<(p|h2|h3)[^>]*>.*?</\1>', body_schoon, re.DOTALL | re.IGNORECASE)
     blokken = [b for b in blokken if len(re.sub(r'<[^>]+>', '', b).strip()) > 10]
     return '\n'.join(blokken[:max_alineas])
 
-# ─────────────────────────────────────────────────────────────
-# VOLLEDIGE HTML PAGINA PER PROTOCOL
-# ─────────────────────────────────────────────────────────────
-def maak_niveau_label(niveau):
-    return {'makkelijk': '📗 Makkelijk', 'gemiddeld': '📘 Gemiddeld', 'complex': '📕 Complex'}.get(niveau, niveau.capitalize())
 
-def maak_cta_blok():
+# ─────────────────────────────────────────────────────────────
+# GEDEELDE CSS (inline, voor beide pagina-templates)
+# ─────────────────────────────────────────────────────────────
+def gedeelde_css():
     return f'''
-<div style="margin-top:3rem;border-top:2px solid {KLEUR_LIGHT};padding-top:2rem;">
-  <div style="background:{KLEUR_NAVY};border-radius:14px;padding:2rem;">
-    <h2 style="font-size:1.1rem;font-weight:700;color:white;margin-bottom:0.5rem;">Klaar om aan de slag te gaan?</h2>
-    <p style="font-size:0.88rem;color:rgba(255,255,255,0.7);margin-bottom:1.5rem;">Vind een gespecialiseerde kinderfysiotherapeut bij u in de buurt.</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <a href="../index.html#zoeken" style="background:{KLEUR_PRIMARY};color:white;padding:11px 22px;border-radius:8px;font-size:0.9rem;font-weight:700;text-decoration:none;">🗺 Vind een therapeut bij mij in de buurt</a>
-      <a href="../therapeut-aanmelden.html" style="background:transparent;color:rgba(255,255,255,0.8);border:1.5px solid rgba(255,255,255,0.3);padding:11px 22px;border-radius:8px;font-size:0.9rem;font-weight:600;text-decoration:none;">Aanmelden als therapeut</a>
-    </div>
-  </div>
-</div>'''
-
-def maak_html_pagina(protocol_naam, protocol_id, niveau, body_schoon, zone_id):
-    zone_naam   = ZONES.get(zone_id, zone_id.capitalize())
-    zone_icon   = ZONE_ICONS.get(zone_id, '🏥')
-    niveau_label = maak_niveau_label(niveau)
-
-    andere_niveaus = [n for n in ['makkelijk', 'gemiddeld', 'complex'] if n != niveau]
-    andere_niveaus_html = ''.join(
-        f'<a href="{protocol_id}-{n}.html" style="padding:6px 14px;border-radius:6px;font-size:0.78rem;font-weight:600;background:var(--grey-bg);color:var(--text-muted);border:1px solid var(--grey-border);text-decoration:none;">{maak_niveau_label(n)}</a>\n'
-        for n in andere_niveaus
-    )
-
-    extractor = TextExtractor()
-    extractor.feed(body_schoon)
-    tekst_preview = extractor.get_text()[:200].strip()
-    description = f"Behandelprotocol {protocol_naam.lower()} voor kinderfysiotherapeuten. {tekst_preview}..."
-
-    return f'''<!DOCTYPE html>
-<html lang="nl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{protocol_naam} – {niveau_label} | {SITE_NAAM}</title>
-  <meta name="description" content="{description}" />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="{SITE_URL}/protocollen/{protocol_id}-{niveau}.html" />
-  <meta property="og:title" content="{protocol_naam} | {SITE_NAAM}" />
-  <meta property="og:description" content="{description}" />
-  <meta property="og:type" content="article" />
-  <style>
     @font-face {{ font-family: 'Inter'; src: url('../fonts/inter-v20-latin-300.woff2') format('woff2'); font-weight: 300; font-display: swap; }}
     @font-face {{ font-family: 'Inter'; src: url('../fonts/inter-v20-latin-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }}
     @font-face {{ font-family: 'Inter'; src: url('../fonts/inter-v20-latin-500.woff2') format('woff2'); font-weight: 500; font-display: swap; }}
@@ -209,54 +265,131 @@ def maak_html_pagina(protocol_naam, protocol_id, niveau, body_schoon, zone_id):
     @font-face {{ font-family: 'Inter'; src: url('../fonts/inter-v20-latin-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }}
     *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
     :root {{
-      --oranje: {KLEUR_PRIMARY}; --oranje-light: {KLEUR_LIGHT};
-      --navy: {KLEUR_NAVY}; --grey-bg: #F8F9FA; --grey-border: #E8ECF0;
+      --oranje: {KLEUR_ORANJE}; --oranje-light: {KLEUR_ORANJE_L};
+      --navy: {KLEUR_NAVY}; --navy-dark: #1a252f;
+      --grey-bg: {KLEUR_GREY_BG}; --grey-border: {KLEUR_GREY_B};
       --text: {KLEUR_NAVY}; --text-muted: #7F8C8D; --white: #FFFFFF;
     }}
     html {{ scroll-behavior: smooth; }}
-    body {{ font-family: 'Inter', sans-serif; font-size: 16px; color: var(--text); background: var(--grey-bg); line-height: 1.6; }}
+    body {{ font-family: 'Inter', sans-serif; font-size: 16px; color: var(--text); background: var(--grey-bg); line-height: 1.7; }}
     header {{ background: var(--white); border-bottom: 1px solid var(--grey-border); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }}
-    .header-inner {{ max-width: 1100px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }}
+    .header-inner {{ max-width: 1000px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }}
     .logo {{ display: flex; align-items: center; gap: 12px; text-decoration: none; }}
     .logo img {{ height: 48px; width: 48px; object-fit: contain; }}
     .logo-text {{ font-weight: 700; font-size: 1rem; color: var(--navy); }}
     .logo-text span {{ color: var(--oranje); }}
-    nav {{ display: flex; gap: 4px; }}
     nav a {{ color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; padding: 7px 12px; border-radius: 8px; transition: all 0.2s; }}
     nav a:hover {{ background: var(--grey-bg); color: var(--navy); }}
-    nav a.cta {{ background: var(--oranje); color: var(--white); font-weight: 700; }}
+    nav a.cta {{ background: var(--oranje); color: white; font-weight: 700; }}
     @media (max-width: 700px) {{ nav {{ display: none; }} }}
-    .breadcrumb {{ max-width: 860px; margin: 24px auto 0; padding: 0 24px; font-size: 0.82rem; color: var(--text-muted); }}
-    .breadcrumb a {{ color: var(--oranje); text-decoration: none; }}
-    .page-header {{ max-width: 860px; margin: 16px auto 0; padding: 0 24px; }}
-    .zone-badge {{ display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--oranje); background: var(--oranje-light); padding: 3px 12px; border-radius: 999px; margin-bottom: 10px; }}
-    h1 {{ font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; color: var(--navy); line-height: 1.25; margin-bottom: 12px; }}
-    .niveau-badges {{ display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }}
-    .niveau-actief {{ padding: 6px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; background: var(--navy); color: white; }}
-    .content-wrap {{ max-width: 860px; margin: 0 auto 64px; padding: 0 24px; }}
-    .disclaimer {{ background: #FEF9E7; border: 1px solid #F0D060; border-radius: 8px; padding: 12px 16px; font-size: 0.82rem; color: #7D6608; margin-bottom: 24px; }}
-    .terug-link {{ display: inline-flex; align-items: center; gap: 6px; color: var(--oranje); font-size: 0.85rem; font-weight: 600; text-decoration: none; margin-bottom: 20px; }}
-    .content {{ background: var(--white); border: 1px solid var(--grey-border); border-radius: 14px; padding: clamp(1.5rem, 4vw, 3rem); font-size: 0.92rem; line-height: 1.8; }}
-    .content h2 {{ font-size: 1.15rem; font-weight: 700; color: var(--navy); margin: 1.6em 0 0.5em; padding-bottom: 6px; border-bottom: 2px solid var(--oranje-light); }}
-    .content h3 {{ font-size: 1rem; font-weight: 700; color: var(--navy); margin: 1.2em 0 0.4em; }}
+    .content {{ max-width: 780px; margin: 0 auto; padding: 40px 24px 80px; }}
+    .content h1 {{ font-size: clamp(1.6rem,3.5vw,2.2rem); font-weight: 700; color: var(--navy); margin-bottom: 12px; line-height: 1.2; letter-spacing: -0.02em; }}
+    .content h2 {{ font-size: 1.2rem; font-weight: 700; color: var(--navy); margin: 2em 0 0.6em; padding-bottom: 8px; border-bottom: 2px solid var(--oranje-light); }}
+    .content h3 {{ font-size: 1rem; font-weight: 700; color: var(--navy); margin: 1.4em 0 0.5em; }}
     .content h4 {{ font-size: 0.9rem; font-weight: 700; color: var(--text-muted); margin: 1em 0 0.3em; text-transform: uppercase; letter-spacing: 0.05em; }}
-    .content p {{ margin-bottom: 0.9em; }}
-    .content ul, .content ol {{ margin: 0.4em 0 0.9em 1.6em; }}
-    .content li {{ margin-bottom: 0.35em; }}
-    .content hr {{ border: none; border-top: 1px solid var(--grey-border); margin: 1.8em 0; }}
-    .content table {{ width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 0.85rem; }}
-    .content td, .content th {{ border: 1px solid var(--grey-border); padding: 8px 12px; text-align: left; }}
-    .content th {{ background: var(--grey-bg); font-weight: 600; }}
-    footer {{ background: {KLEUR_NAVY}; color: rgba(255,255,255,0.4); text-align: center; padding: 28px 24px; font-size: 0.82rem; margin-top: 48px; }}
+    .content p {{ margin-bottom: 1em; line-height: 1.75; }}
+    .content ul, .content ol {{ margin: 0.5em 0 1em 1.5em; }}
+    .content li {{ margin-bottom: 0.4em; line-height: 1.65; }}
+    .content strong {{ font-weight: 700; color: var(--navy); }}
+    .content em {{ font-style: italic; }}
+    .content hr {{ border: none; border-top: 1px solid var(--grey-border); margin: 2em 0; }}
+    .content a {{ color: var(--oranje); }}
+    .content a:hover {{ text-decoration: underline; }}
+    footer {{ background: var(--navy-dark); color: rgba(255,255,255,0.4); text-align: center; padding: 28px 24px; font-size: 0.82rem; margin-top: 48px; }}
     footer a {{ color: rgba(255,255,255,0.6); text-decoration: none; }}
+    '''
+
+
+def header_html(teruglink_label='← Alle protocollen', teruglink_url='../protocollen.html'):
+    return f'''<header>
+  <div class="header-inner">
+    <a href="../index.html" class="logo">
+      <img src="../{LOGO_BESTAND}" alt="{SITE_NAAM}" />
+      <div class="logo-text"><span>Kansrijk</span> Opgroeien</div>
+    </a>
+    <nav>
+      <a href="{teruglink_url}">{teruglink_label}</a>
+      <a href="../index.html#zoeken">Zoeken</a>
+      <a href="../therapeut-aanmelden.html" class="cta">Aanmelden</a>
+    </nav>
+  </div>
+</header>'''
+
+def footer_html():
+    return f'''<footer>
+  <p>&copy; 2025 {SITE_NAAM} &nbsp;&middot;&nbsp;
+  <a href="../index.html">Home</a> &nbsp;&middot;&nbsp;
+  <a href="../protocollen.html">Protocollen</a> &nbsp;&middot;&nbsp;
+  Onderdeel van het <a href="https://vindjefysio.net">VindJeFysio Netwerk</a></p>
+</footer>'''
+
+
+# ─────────────────────────────────────────────────────────────
+# PAGINA-TEMPLATES
+# ─────────────────────────────────────────────────────────────
+
+def maak_pagina_makkelijk(protocol_naam, protocol_id, body_schoon, zone_id):
+    """
+    Leesbaar artikel voor ouders/patiënten.
+    Toegankelijk voor iedereen, eigen URL, ook als preview op protocollen.html.
+    """
+    zone_naam = ZONES.get(zone_id, zone_id.capitalize())
+    zone_icon = ZONE_ICONS.get(zone_id, '🏥')
+
+    extractor = TextExtractor()
+    extractor.feed(body_schoon)
+    tekst_preview = extractor.get_text()[:200].strip()
+    description = f"{protocol_naam} — informatie voor ouders en patiënten. {tekst_preview}..."
+
+    # Link naar complex niveau
+    complex_link = f'../protocollen/{protocol_id}-complex.html'
+
+    return f'''<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{protocol_naam} | {SITE_NAAM}</title>
+  <meta name="description" content="{description}" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="{SITE_URL}/protocollen/{protocol_id}-makkelijk.html" />
+  <meta property="og:title" content="{protocol_naam} | {SITE_NAAM}" />
+  <meta property="og:description" content="{description}" />
+  <meta property="og:type" content="article" />
+  <style>{gedeelde_css()}
+    .artikel-header {{ background: var(--white); border-bottom: 1px solid var(--grey-border); padding: 40px 24px 32px; }}
+    .artikel-header-inner {{ max-width: 780px; margin: 0 auto; }}
+    .zone-badge {{ display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--oranje); background: var(--oranje-light); padding: 3px 12px; border-radius: 999px; margin-bottom: 14px; }}
+    .artikel-meta {{ display: flex; flex-wrap: wrap; gap: 16px; margin-top: 14px; font-size: 0.8rem; color: var(--text-muted); }}
+    .niveau-badge {{ display: inline-flex; align-items: center; gap: 6px; background: #EDF7EE; color: #2e7d32; font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 999px; }}
+    .disclaimer {{ background: #FEF9E7; border: 1px solid rgba(243,156,18,0.35); border-radius: 10px; padding: 14px 18px; font-size: 0.82rem; color: #7d5a00; margin-bottom: 28px; line-height: 1.6; }}
+    .naar-complex {{ background: var(--navy); color: white; border-radius: 14px; padding: 24px 28px; margin-top: 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }}
+    .naar-complex h3 {{ font-size: 1rem; font-weight: 700; margin-bottom: 4px; }}
+    .naar-complex p {{ font-size: 0.85rem; opacity: 0.8; }}
+    .naar-complex a {{ display: inline-block; background: var(--oranje); color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 0.88rem; text-decoration: none; white-space: nowrap; }}
+    .cta-blok {{ background: linear-gradient(135deg, {KLEUR_ORANJE} 0%, #F5A623 100%); border-radius: 14px; padding: 28px; margin-top: 40px; color: white; }}
+    .cta-blok h3 {{ font-size: 1rem; font-weight: 700; margin-bottom: 8px; }}
+    .cta-blok p {{ opacity: 0.9; font-size: 0.88rem; margin-bottom: 16px; }}
+    .cta-blok a {{ display: inline-block; background: white; color: var(--oranje); padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 0.88rem; text-decoration: none; }}
+
+    /* VOORLEESBALK */
+    .voorleesbalk {{ display: flex; align-items: center; gap: 14px; background: var(--white); border: 1.5px solid var(--grey-border); border-radius: 12px; padding: 14px 18px; margin-bottom: 24px; flex-wrap: wrap; }}
+    .voorlees-btn {{ display: flex; align-items: center; gap: 8px; background: var(--oranje); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 0.86rem; cursor: pointer; font-family: inherit; transition: background 0.2s; }}
+    .voorlees-btn:hover {{ background: #d4614a; }}
+    .voorlees-btn.bezig {{ background: var(--navy); }}
+    .voorlees-btn svg {{ width: 16px; height: 16px; flex-shrink: 0; }}
+    .voorlees-snelheid {{ display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-muted); }}
+    .voorlees-snelheid select {{ border: 1px solid var(--grey-border); border-radius: 6px; padding: 4px 8px; font-family: inherit; font-size: 0.78rem; color: var(--navy); background: white; }}
+    .voorlees-status {{ font-size: 0.78rem; color: var(--text-muted); margin-left: auto; }}
+    .voorlees-niet-beschikbaar {{ display: none; font-size: 0.8rem; color: var(--text-muted); font-style: italic; }}
   </style>
   <script type="application/ld+json">
   {{
     "@context": "https://schema.org",
     "@type": "MedicalWebPage",
-    "name": "{protocol_naam} – {SITE_NAAM}",
+    "name": "{protocol_naam} | {SITE_NAAM}",
     "description": "{description}",
-    "url": "{SITE_URL}/protocollen/{protocol_id}-{niveau}.html",
+    "url": "{SITE_URL}/protocollen/{protocol_id}-makkelijk.html",
     "inLanguage": "nl",
     "isPartOf": {{"@type": "WebSite", "name": "{SITE_NAAM}", "url": "{SITE_URL}"}},
     "about": {{"@type": "MedicalCondition", "name": "{protocol_naam}"}}
@@ -265,55 +398,257 @@ def maak_html_pagina(protocol_naam, protocol_id, niveau, body_schoon, zone_id):
 </head>
 <body>
 
-<header>
-  <div class="header-inner">
-    <a href="../index.html" class="logo">
-      <img src="../{LOGO_BESTAND}" alt="{SITE_NAAM}" />
-      <div class="logo-text"><span>Kansrijk</span> Opgroeien</div>
-    </a>
-    <nav>
-      <a href="../protocollen.html">Protocollen</a>
-      <a href="../index.html#zoeken">Zoeken</a>
-      <a href="../index.html#specialisaties">Specialisaties</a>
-      <a href="../therapeut-aanmelden.html" class="cta">Aanmelden</a>
-    </nav>
-  </div>
-</header>
+{header_html()}
 
-<div class="breadcrumb">
-  <a href="../index.html">Home</a> &rsaquo;
-  <a href="../protocollen.html">Protocollen</a> &rsaquo;
-  {protocol_naam}
-</div>
-
-<div class="page-header">
-  <div class="zone-badge">{zone_icon} {zone_naam}</div>
-  <h1>{protocol_naam}</h1>
-  <div class="niveau-badges">
-    <span class="niveau-actief">{niveau_label}</span>
-    {andere_niveaus_html}
+<div class="artikel-header">
+  <div class="artikel-header-inner">
+    <div class="zone-badge">{zone_icon} {zone_naam}</div>
+    <h1 class="content" style="padding:0;margin:0;border:none;">{protocol_naam}</h1>
+    <div class="artikel-meta">
+      <span class="niveau-badge">📗 Leesbaar artikel</span>
+      <span>Voor ouders en patiënten</span>
+      <span>Kansrijk Opgroeien · {date.today().strftime("%B %Y")}</span>
+    </div>
   </div>
 </div>
 
-<div class="content-wrap">
+<div class="content">
+
+  <div class="voorleesbalk" id="voorleesbalk">
+    <button class="voorlees-btn" id="voorlees-btn" onclick="voorlezenWisselen()">
+      <svg viewBox="0 0 24 24" fill="currentColor" id="voorlees-icoon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+      <span id="voorlees-label">Lees dit artikel voor</span>
+    </button>
+    <div class="voorlees-snelheid">
+      Snelheid:
+      <select id="voorlees-snelheid" onchange="snelheidAanpassen()">
+        <option value="0.8">Langzaam</option>
+        <option value="1" selected>Normaal</option>
+        <option value="1.2">Snel</option>
+      </select>
+    </div>
+    <div class="voorlees-status" id="voorlees-status"></div>
+  </div>
+  <p class="voorlees-niet-beschikbaar" id="voorlees-niet-beschikbaar">Voorlezen wordt niet ondersteund in deze browser.</p>
+
   <div class="disclaimer">
-    ⚠️ Dit protocol is algemene informatie voor zorgverleners en ouders. Het vervangt geen persoonlijk advies van een arts of kinderfysiotherapeut.
+    ⚠️ Dit artikel is algemene informatie voor ouders en patiënten. Het vervangt geen persoonlijk advies van een arts of kinderfysiotherapeut.
   </div>
-  <a href="../protocollen.html" class="terug-link">&#8592; Terug naar alle protocollen</a>
-  <div class="content">
-    {body_schoon}
+
+  <div id="artikel-tekst">
+  {body_schoon}
   </div>
-  {maak_cta_blok()}
+
+  <div class="naar-complex">
+    <div>
+      <h3>Bent u een kinderfysiotherapeut?</h3>
+      <p>Lees het uitgebreide klinische protocol met diagnostiek, meetinstrumenten en interventierichtlijnen.</p>
+    </div>
+    <a href="{complex_link}">Naar het klinisch protocol →</a>
+  </div>
+
+  <div class="cta-blok">
+    <h3>Vind een specialist bij u in de buurt</h3>
+    <p>Zoek een gespecialiseerde kinderfysiotherapeut in de regio via Kansrijk Opgroeien.</p>
+    <a href="../index.html#zoeken">Zoek een therapeut →</a>
+  </div>
 </div>
 
-<footer>
-  <p>&copy; 2025 {SITE_NAAM} &nbsp;&middot;&nbsp; <a href="../index.html">Home</a> &nbsp;&middot;&nbsp; <a href="../protocollen.html">Protocollen</a> &nbsp;&middot;&nbsp; <a href="https://vindjefysio.net">VindJeFysio Netwerk</a></p>
-</footer>
+<script>
+  // ── Voorleesfunctie (Web Speech API) ──────────────────────
+  let voorlezenActief = false;
+  let huidigeUtterance = null;
+
+  function haalVoorleesbareTekst() {{
+    const container = document.getElementById('artikel-tekst');
+    // Loop door alle directe tekstdragende elementen i.p.v. alles in 1 keer,
+    // zodat headings een korte pauze krijgen (leesbaarder bij voorlezen)
+    const elementen = container.querySelectorAll('h2, h3, p, li, td, th');
+    let zinnen = [];
+    elementen.forEach(el => {{
+      const t = el.textContent.trim();
+      if (t.length > 0) zinnen.push(t);
+    }});
+    return zinnen;
+  }}
+
+  function voorlezenWisselen() {{
+    if (!('speechSynthesis' in window)) {{
+      document.getElementById('voorleesbalk').style.display = 'none';
+      document.getElementById('voorlees-niet-beschikbaar').style.display = 'block';
+      return;
+    }}
+
+    const btn = document.getElementById('voorlees-btn');
+    const label = document.getElementById('voorlees-label');
+    const status = document.getElementById('voorlees-status');
+
+    if (voorlezenActief) {{
+      window.speechSynthesis.cancel();
+      voorlezenActief = false;
+      btn.classList.remove('bezig');
+      label.textContent = 'Lees dit artikel voor';
+      status.textContent = '';
+      return;
+    }}
+
+    const zinnen = haalVoorleesbareTekst();
+    if (zinnen.length === 0) return;
+
+    let index = 0;
+    voorlezenActief = true;
+    btn.classList.add('bezig');
+    label.textContent = 'Stop met voorlezen';
+
+    const snelheid = parseFloat(document.getElementById('voorlees-snelheid').value);
+
+    function leesVolgendeZin() {{
+      if (!voorlezenActief || index >= zinnen.length) {{
+        voorlezenActief = false;
+        btn.classList.remove('bezig');
+        label.textContent = 'Lees dit artikel voor';
+        status.textContent = '';
+        return;
+      }}
+      status.textContent = `Zin ${{index + 1}} van ${{zinnen.length}}`;
+      huidigeUtterance = new SpeechSynthesisUtterance(zinnen[index]);
+      huidigeUtterance.lang = 'nl-NL';
+      huidigeUtterance.rate = snelheid;
+      huidigeUtterance.onend = () => {{
+        index++;
+        leesVolgendeZin();
+      }};
+      huidigeUtterance.onerror = () => {{
+        index++;
+        leesVolgendeZin();
+      }};
+      window.speechSynthesis.speak(huidigeUtterance);
+    }}
+    leesVolgendeZin();
+  }}
+
+  function snelheidAanpassen() {{
+    if (voorlezenActief && huidigeUtterance) {{
+      // Herstart met nieuwe snelheid vanaf huidige positie
+      window.speechSynthesis.cancel();
+      voorlezenActief = false;
+      voorlezenWisselen();
+    }}
+  }}
+
+  // Check direct of voorlezen beschikbaar is in deze browser
+  if (!('speechSynthesis' in window)) {{
+    document.addEventListener('DOMContentLoaded', () => {{
+      document.getElementById('voorleesbalk').style.display = 'none';
+      document.getElementById('voorlees-niet-beschikbaar').style.display = 'block';
+    }});
+  }}
+</script>
+
+{footer_html()}
 </body>
 </html>'''
 
+
+def maak_pagina_complex(protocol_naam, protocol_id, body_schoon, zone_id):
+    """
+    Klinisch protocol voor therapeuten.
+    Eigen URL, link terug naar makkelijk niveau.
+    """
+    zone_naam = ZONES.get(zone_id, zone_id.capitalize())
+    zone_icon = ZONE_ICONS.get(zone_id, '🏥')
+
+    extractor = TextExtractor()
+    extractor.feed(body_schoon)
+    tekst_preview = extractor.get_text()[:200].strip()
+    description = f"Klinisch protocol {protocol_naam.lower()} voor kinderfysiotherapeuten. Diagnostiek, indicatiestelling en interventie. {tekst_preview}..."
+
+    makkelijk_link = f'../protocollen/{protocol_id}-makkelijk.html'
+
+    return f'''<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{protocol_naam} – Klinisch protocol | {SITE_NAAM}</title>
+  <meta name="description" content="{description}" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="{SITE_URL}/protocollen/{protocol_id}-complex.html" />
+  <style>{gedeelde_css()}
+    .protocol-header {{ background: linear-gradient(135deg, {KLEUR_NAVY} 0%, #34495E 100%); color: white; padding: 48px 24px 40px; position: relative; overflow: hidden; }}
+    .protocol-header::before {{ content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(232,115,90,0.12) 0%,rgba(76,175,80,0.08) 100%); }}
+    .protocol-header-inner {{ max-width: 780px; margin: 0 auto; position: relative; z-index: 1; }}
+    .zone-badge {{ display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); padding: 3px 12px; border-radius: 999px; margin-bottom: 14px; }}
+    .protocol-header h1 {{ font-size: clamp(1.6rem,3.5vw,2.2rem); font-weight: 700; margin-bottom: 10px; line-height: 1.2; letter-spacing: -0.02em; }}
+    .protocol-header p {{ opacity: 0.85; max-width: 640px; font-size: 0.95rem; margin-bottom: 18px; }}
+    .protocol-meta {{ display: flex; flex-wrap: wrap; gap: 16px; font-size: 0.8rem; opacity: 0.75; }}
+    .niveau-badge {{ display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 999px; }}
+    .disclaimer {{ background: #FEF9E7; border: 1px solid rgba(243,156,18,0.35); border-radius: 10px; padding: 14px 18px; font-size: 0.82rem; color: #7d5a00; margin-bottom: 28px; line-height: 1.6; }}
+    .naar-makkelijk {{ background: var(--grey-bg); border: 1px solid var(--grey-border); border-radius: 12px; padding: 18px 22px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }}
+    .naar-makkelijk p {{ font-size: 0.85rem; color: var(--text-muted); }}
+    .naar-makkelijk a {{ font-size: 0.85rem; color: var(--oranje); font-weight: 600; text-decoration: none; white-space: nowrap; }}
+    .cta-blok {{ background: linear-gradient(135deg, {KLEUR_ORANJE} 0%, #F5A623 100%); border-radius: 14px; padding: 28px; margin-top: 40px; color: white; }}
+    .cta-blok h3 {{ font-size: 1rem; font-weight: 700; margin-bottom: 8px; }}
+    .cta-blok p {{ opacity: 0.9; font-size: 0.88rem; margin-bottom: 16px; }}
+    .cta-blok a {{ display: inline-block; background: {KLEUR_NAVY}; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 0.88rem; text-decoration: none; }}
+  </style>
+  <script type="application/ld+json">
+  {{
+    "@context": "https://schema.org",
+    "@type": "MedicalWebPage",
+    "name": "{protocol_naam} – Klinisch protocol | {SITE_NAAM}",
+    "description": "{description}",
+    "url": "{SITE_URL}/protocollen/{protocol_id}-complex.html",
+    "inLanguage": "nl",
+    "isPartOf": {{"@type": "WebSite", "name": "{SITE_NAAM}", "url": "{SITE_URL}"}},
+    "about": {{"@type": "MedicalCondition", "name": "{protocol_naam}"}},
+    "audience": {{"@type": "MedicalAudience", "audienceType": "Clinician"}}
+  }}
+  </script>
+</head>
+<body>
+
+{header_html()}
+
+<div class="protocol-header">
+  <div class="protocol-header-inner">
+    <div class="zone-badge">{zone_icon} {zone_naam}</div>
+    <h1>{protocol_naam}</h1>
+    <p>Klinisch protocol voor kinderfysiotherapeuten — diagnostiek, indicatiestelling en behandeling.</p>
+    <div class="protocol-meta">
+      <span class="niveau-badge">📕 Klinisch protocol</span>
+      <span>Voor kinderfysiotherapeuten</span>
+      <span>Kansrijk Opgroeien · {date.today().strftime("%B %Y")}</span>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+  <div class="naar-makkelijk">
+    <p>📗 Er is ook een leesbare versie voor ouders en patiënten.</p>
+    <a href="{makkelijk_link}">Bekijk het patiëntenartikel →</a>
+  </div>
+
+  <div class="disclaimer">
+    ⚠️ Dit protocol is algemene informatie voor zorgverleners. Het vervangt geen klinisch oordeel en dient altijd toegepast te worden binnen de individuele patiëntcontext.
+  </div>
+
+  {body_schoon}
+
+  <div class="cta-blok">
+    <h3>Bent u nog niet aangesloten?</h3>
+    <p>Meld uw praktijk aan bij Kansrijk Opgroeien en word zichtbaar voor ouders en verwijzers.</p>
+    <a href="../therapeut-aanmelden.html">Aanmelden als therapeut →</a>
+  </div>
+</div>
+
+{footer_html()}
+</body>
+</html>'''
+
+
 # ─────────────────────────────────────────────────────────────
-# HOOFDLOOP — protocollen ophalen en genereren
+# HOOFDLOOP
 # ─────────────────────────────────────────────────────────────
 os.makedirs('protocollen', exist_ok=True)
 fouten = []
@@ -323,11 +658,10 @@ for protocol in config['protocollen']:
     protocol_teksten      = {}
     protocol_previews     = {}
     protocol_volledige_html = {}
-    protocol_ruwe_html    = {}
 
     for niveau, doc_id in protocol['niveaus'].items():
         if not doc_id or doc_id in ('INVULLEN', ''):
-            print(f"Overgeslagen: {protocol['id']} – {niveau} (geen doc_id)")
+            print(f"⏭  Overgeslagen: {protocol['id']} – {niveau} (geen doc_id)")
             continue
 
         url = f"https://docs.google.com/document/d/{doc_id}/export?format=html"
@@ -339,35 +673,45 @@ for protocol in config['protocollen']:
                 html = resp.read().decode('utf-8')
 
             body_match = re.search(r'<body[^>]*>(.*?)</body>', html, re.DOTALL | re.IGNORECASE)
-            if body_match:
-                body       = body_match.group(1)
-                body_schoon = opschonen_html(body)
+            if not body_match:
+                fouten.append(f"{bestandsnaam}: geen body gevonden")
+                continue
 
-                volledige_pagina = maak_html_pagina(
+            body       = body_match.group(1)
+            body_schoon = opschonen_html(body)
+
+            # Genereer de juiste pagina per niveau
+            if niveau == 'makkelijk':
+                pagina = maak_pagina_makkelijk(
                     protocol_naam=protocol['naam'],
                     protocol_id=protocol['id'],
-                    niveau=niveau,
                     body_schoon=body_schoon,
                     zone_id=protocol.get('zone', '')
                 )
-                with open(bestandsnaam, 'w', encoding='utf-8') as out:
-                    out.write(volledige_pagina)
-
-                print(f"✓ {bestandsnaam}")
-
-                extractor = TextExtractor()
-                extractor.feed(body_schoon)
-                protocol_teksten[niveau]       = extractor.get_text()[:2000]
-                protocol_previews[niveau]      = extraheer_preview(body, max_alineas=3)
-                protocol_volledige_html[niveau] = body_schoon
-                protocol_ruwe_html[niveau]     = body
+            elif niveau == 'complex':
+                pagina = maak_pagina_complex(
+                    protocol_naam=protocol['naam'],
+                    protocol_id=protocol['id'],
+                    body_schoon=body_schoon,
+                    zone_id=protocol.get('zone', '')
+                )
             else:
-                fouten.append(bestandsnaam)
-                print(f"✗ Geen body gevonden: {bestandsnaam}")
+                print(f"⚠️  Onbekend niveau '{niveau}' voor {protocol['id']} — overgeslagen")
+                continue
+
+            with open(bestandsnaam, 'w', encoding='utf-8') as out:
+                out.write(pagina)
+            print(f"✓  {bestandsnaam}")
+
+            extractor = TextExtractor()
+            extractor.feed(body_schoon)
+            protocol_teksten[niveau]        = extractor.get_text()[:2000]
+            protocol_previews[niveau]       = extraheer_preview(body)
+            protocol_volledige_html[niveau] = body_schoon
 
         except Exception as e:
             fouten.append(f"{bestandsnaam}: {e}")
-            print(f"✗ Fout: {bestandsnaam}: {e}")
+            print(f"✗  Fout: {bestandsnaam}: {e}")
 
     if protocol_teksten:
         protocol_data.append({
@@ -377,56 +721,46 @@ for protocol in config['protocollen']:
             'teksten':        protocol_teksten,
             'previews':       protocol_previews,
             'volledige_html': protocol_volledige_html,
-            'ruwe_html':      protocol_ruwe_html,
         })
+
 
 # ─────────────────────────────────────────────────────────────
 # GENEREER protocollen.html
 # ─────────────────────────────────────────────────────────────
 print("\nGenereer protocollen.html...")
 
-NIVEAU_EMOJIS  = {'makkelijk': '📗', 'gemiddeld': '📘', 'complex': '📕'}
-NIVEAU_LABELS  = {'makkelijk': 'Makkelijk', 'gemiddeld': 'Gemiddeld', 'complex': 'Complex'}
+zone_filter_btns = f'<button class="zone-btn actief" onclick="filterZone(this,\'alle\')">Alle specialisaties</button>\n'
+for zone_id, zone_naam in ZONES.items():
+    icon = ZONE_ICONS.get(zone_id, '')
+    zone_filter_btns += f'<button class="zone-btn" onclick="filterZone(this,\'{zone_id}\')">{icon} {zone_naam}</button>\n'
 
 protocol_kaarten = ''
 for p in protocol_data:
-    zone_id   = p['zone']
-    zone_naam = ZONES.get(zone_id, zone_id.capitalize())
-    zone_icon = ZONE_ICONS.get(zone_id, '🏥')
+    zone_naam = ZONES.get(p['zone'], p['zone'].capitalize())
+    zone_icon = ZONE_ICONS.get(p['zone'], '🏥')
+    tekst_data = p['teksten'].get('makkelijk', p['teksten'].get('complex', ''))
+    tekst_data = tekst_data[:500].lower().replace('"','').replace("'",'')
 
-    preview_html = p['previews'].get('makkelijk', p['previews'].get('gemiddeld', '<p>Geen preview beschikbaar.</p>'))
-    tekst_data   = p['teksten'].get('makkelijk', p['teksten'].get('gemiddeld', ''))
-    tekst_data   = tekst_data[:500].lower().replace('"', '').replace("'", '')
+    # Preview uit het makkelijk niveau (leesbaar artikel)
+    preview_html = p['previews'].get('makkelijk', p['previews'].get('complex', '<p>Geen preview beschikbaar.</p>'))
 
-    import json as jsonlib
-    volledige_json = jsonlib.dumps(p['volledige_html'])
+    # Links naar de twee niveaus
+    link_makkelijk = f'protocollen/{p["id"]}-makkelijk.html' if 'makkelijk' in p['teksten'] else None
+    link_complex   = f'protocollen/{p["id"]}-complex.html'   if 'complex'   in p['teksten'] else None
 
-    niveaus_html = ''
-    for n in p['teksten'].keys():
-        emoji = NIVEAU_EMOJIS.get(n, '')
-        label = NIVEAU_LABELS.get(n, n.capitalize())
-        niveaus_html += f'<button class="niveau-btn niveau-{n}" onclick="openProtocol(\'{p["id"]}\', \'{n}\')">{emoji} {label}</button>\n'
+    niveau_knoppen = ''
+    if link_makkelijk:
+        niveau_knoppen += f'<a href="{link_makkelijk}" class="niveau-btn makkelijk">📗 Leesbaar artikel</a>\n'
+    if link_complex:
+        niveau_knoppen += f'<a href="{link_complex}" class="niveau-btn complex">📕 Klinisch protocol</a>\n'
 
-    protocol_kaarten += f'''<div class="protocol-kaart" id="kaart-{p['id']}" data-naam="{p['naam'].lower()}" data-zone="{zone_id}" data-tekst="{tekst_data}" data-html="{volledige_json.replace('"', '&quot;')}">
-  <div class="zone-badge"><span>{zone_icon}</span>{zone_naam}</div>
+    protocol_kaarten += f'''<div class="protocol-kaart" data-naam="{p['naam'].lower()}" data-zone="{p['zone']}" data-tekst="{tekst_data}">
+  <div class="zone-badge">{zone_icon} {zone_naam}</div>
   <h2 class="protocol-naam">{p['naam']}</h2>
   <div class="protocol-preview">{preview_html}</div>
-  <div class="protocol-niveaus">
-    {niveaus_html}
-  </div>
-  <div class="protocol-viewer" id="viewer-{p['id']}" style="display:none">
-    <div class="viewer-header">
-      <span id="viewer-titel-{p['id']}"></span>
-      <button onclick="sluitProtocol('{p['id']}')" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:#7F8C8D">✕</button>
-    </div>
-    <div class="viewer-inhoud" id="viewer-inhoud-{p['id']}"></div>
-  </div>
-</div>'''
-
-zone_filter_btns = '<button class="zone-btn actief" onclick="filterZone(this, \'alle\')">Alle specialisaties</button>\n'
-for zone_id, zone_naam in ZONES.items():
-    icon = ZONE_ICONS.get(zone_id, '')
-    zone_filter_btns += f'<button class="zone-btn" onclick="filterZone(this, \'{zone_id}\')">{icon} {zone_naam}</button>\n'
+  <div class="protocol-niveaus">{niveau_knoppen}</div>
+</div>
+'''
 
 protocollen_html = f'''<!DOCTYPE html>
 <html lang="nl">
@@ -434,117 +768,55 @@ protocollen_html = f'''<!DOCTYPE html>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Behandelprotocollen kinderfysiotherapie – {SITE_NAAM}</title>
-  <meta name="description" content="Overzicht van behandelprotocollen voor kinderfysiotherapeuten. Motorische ontwikkeling, DCD, schrijfproblemen, houding, ademhaling en meer." />
+  <meta name="description" content="Overzicht van behandelprotocollen voor kinderfysiotherapeuten en ouders. Motorische ontwikkeling, DCD, schrijfproblemen, houding, ademhaling en meer." />
   <style>
-    @font-face {{ font-family: 'Inter'; src: url('fonts/inter-v20-latin-300.woff2') format('woff2'); font-weight: 300; font-display: swap; }}
-    @font-face {{ font-family: 'Inter'; src: url('fonts/inter-v20-latin-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }}
-    @font-face {{ font-family: 'Inter'; src: url('fonts/inter-v20-latin-500.woff2') format('woff2'); font-weight: 500; font-display: swap; }}
-    @font-face {{ font-family: 'Inter'; src: url('fonts/inter-v20-latin-600.woff2') format('woff2'); font-weight: 600; font-display: swap; }}
-    @font-face {{ font-family: 'Inter'; src: url('fonts/inter-v20-latin-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }}
-    *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
-    :root {{
-      --oranje: {KLEUR_PRIMARY}; --oranje-light: {KLEUR_LIGHT};
-      --navy: {KLEUR_NAVY}; --grey-bg: #F8F9FA; --grey-border: #E8ECF0;
-      --text: {KLEUR_NAVY}; --text-muted: #7F8C8D; --white: #FFFFFF;
-    }}
-    html {{ scroll-behavior: smooth; }}
-    body {{ font-family: 'Inter', sans-serif; font-size: 16px; color: var(--text); background: var(--grey-bg); line-height: 1.6; }}
-
-    header {{ background: var(--white); border-bottom: 1px solid var(--grey-border); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }}
-    .header-inner {{ max-width: 1100px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }}
-    .logo {{ display: flex; align-items: center; gap: 12px; text-decoration: none; }}
-    .logo img {{ height: 48px; width: 48px; object-fit: contain; }}
-    .logo-text {{ font-weight: 700; font-size: 1rem; color: var(--navy); }}
-    .logo-text span {{ color: var(--oranje); }}
-    nav {{ display: flex; gap: 4px; }}
-    nav a {{ color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; padding: 7px 12px; border-radius: 8px; transition: all 0.2s; }}
-    nav a:hover {{ background: var(--grey-bg); color: var(--navy); }}
-    nav a.cta {{ background: var(--oranje); color: var(--white); font-weight: 700; }}
-    @media (max-width: 700px) {{ nav {{ display: none; }} }}
-
-    .hero {{ background: linear-gradient(135deg, #E8735A 0%, #F5A623 50%, #4CAF50 100%); color: white; padding: 56px 24px 48px; text-align: center; position: relative; overflow: hidden; }}
-    .hero::before {{ content:''; position:absolute; inset:0; background:rgba(0,0,0,0.3); }}
-    .hero-content {{ position: relative; z-index: 1; }}
-    .hero h1 {{ font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 700; margin-bottom: 12px; letter-spacing: -0.02em; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }}
-    .hero h1 em {{ font-style: normal; color: #FFE082; }}
-    .hero p {{ opacity: 0.9; max-width: 560px; margin: 0 auto 28px; font-size: 0.95rem; }}
-    .zoekbalk-wrap {{ max-width: 560px; margin: 0 auto; }}
+    {gedeelde_css()}
+    .page-hero {{ background: linear-gradient(135deg, #E8735A 0%, #F5A623 50%, #4CAF50 100%); color: white; padding: 56px 24px 48px; text-align: center; position: relative; overflow: hidden; }}
+    .page-hero::before {{ content:''; position:absolute; inset:0; background:rgba(0,0,0,0.3); }}
+    .page-hero-inner {{ position: relative; z-index: 1; }}
+    .page-hero h1 {{ font-size: clamp(1.8rem,4vw,2.4rem); font-weight: 700; margin-bottom: 10px; letter-spacing: -0.02em; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }}
+    .page-hero p {{ opacity: 0.9; max-width: 560px; margin: 0 auto 28px; font-size: 0.95rem; }}
+    .zoekbalk-wrap {{ max-width: 520px; margin: 0 auto; }}
     .zoekbalk {{ display: flex; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }}
-    .zoekbalk input {{ flex: 1; padding: 14px 20px; border: none; outline: none; font-family: inherit; font-size: 1rem; color: var(--text); }}
-    .zoekbalk button {{ padding: 14px 24px; background: var(--oranje); color: white; border: none; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: background 0.2s; }}
+    .zoekbalk input {{ flex: 1; padding: 14px 20px; border: none; outline: none; font-family: inherit; font-size: 1rem; color: {KLEUR_NAVY}; }}
+    .zoekbalk button {{ padding: 14px 22px; background: {KLEUR_ORANJE}; color: white; border: none; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: background 0.2s; }}
     .zoekbalk button:hover {{ background: #d4614a; }}
-
-    .filter-wrap {{ max-width: 1100px; margin: 32px auto 0; padding: 0 24px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }}
+    .filter-wrap {{ max-width: 1100px; margin: 28px auto 0; padding: 0 24px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }}
     .filter-label {{ font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 4px; white-space: nowrap; }}
     .zone-btn {{ padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--grey-border); background: var(--white); color: var(--text-muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }}
-    .zone-btn:hover, .zone-btn.actief {{ background: var(--oranje); border-color: var(--oranje); color: white; }}
-
-    .container {{ max-width: 1100px; margin: 32px auto 64px; padding: 0 24px; }}
+    .zone-btn:hover, .zone-btn.actief {{ background: {KLEUR_ORANJE}; border-color: {KLEUR_ORANJE}; color: white; }}
+    .container {{ max-width: 1100px; margin: 28px auto 64px; padding: 0 24px; }}
     .resultaat-info {{ font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }}
     .protocollen-grid {{ display: flex; flex-direction: column; gap: 16px; }}
-
-    .protocol-kaart {{ background: var(--white); border: 1px solid var(--grey-border); border-radius: 14px; padding: 28px 32px; transition: box-shadow 0.2s; }}
+    .protocol-kaart {{ background: var(--white); border: 1px solid var(--grey-border); border-radius: 14px; padding: 26px 30px; transition: box-shadow 0.2s; }}
     .protocol-kaart:hover {{ box-shadow: 0 4px 20px rgba(44,62,80,0.10); }}
     .protocol-kaart.verborgen {{ display: none; }}
     .zone-badge {{ display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--oranje); background: var(--oranje-light); padding: 3px 12px; border-radius: 999px; margin-bottom: 12px; }}
     .protocol-naam {{ font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 12px; }}
-    .protocol-preview {{ font-size: 0.85rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 16px; max-height: 100px; overflow: hidden; position: relative; }}
-    .protocol-preview::after {{ content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 32px; background: linear-gradient(transparent, white); }}
-    .protocol-preview h2, .protocol-preview h3 {{ color: var(--navy); font-size: 0.88rem; font-weight: 700; margin-bottom: 4px; margin-top: 8px; }}
+    .protocol-preview {{ font-size: 0.85rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 16px; max-height: 90px; overflow: hidden; position: relative; }}
+    .protocol-preview::after {{ content:""; position:absolute; bottom:0; left:0; right:0; height:32px; background:linear-gradient(transparent,white); }}
+    .protocol-preview h2, .protocol-preview h3 {{ color: var(--navy); font-size: 0.88rem; font-weight: 700; margin-bottom: 4px; }}
     .protocol-preview p {{ margin-bottom: 6px; }}
-    .protocol-niveaus {{ display: flex; gap: 8px; flex-wrap: wrap; padding-top: 14px; border-top: 1px solid var(--grey-border); }}
-    .niveau-btn {{ padding: 6px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: all 0.15s; }}
-    .niveau-makkelijk {{ background: #EDF7EE; color: #2e7d32; }}
-    .niveau-makkelijk:hover {{ background: #2e7d32; color: white; }}
-    .niveau-gemiddeld {{ background: #FEF9E7; color: #B7770D; }}
-    .niveau-gemiddeld:hover {{ background: #B7770D; color: white; }}
-    .niveau-complex {{ background: #EAF0FB; color: #1A5276; }}
-    .niveau-complex:hover {{ background: #1A5276; color: white; }}
-
-    .protocol-viewer {{ margin-top: 20px; border-top: 2px solid var(--oranje-light); padding-top: 16px; }}
-    .viewer-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }}
-    .viewer-header span {{ font-size: 0.85rem; font-weight: 700; color: var(--oranje); }}
-    .viewer-inhoud {{ font-size: 0.9rem; line-height: 1.75; color: var(--text); }}
-    .viewer-inhoud h2 {{ font-size: 1rem; font-weight: 700; color: var(--navy); margin: 1em 0 0.4em; }}
-    .viewer-inhoud h3 {{ font-size: 0.9rem; font-weight: 700; color: var(--navy); margin: 0.8em 0 0.3em; }}
-    .viewer-inhoud p {{ margin-bottom: 0.8em; }}
-    .viewer-inhoud ul, .viewer-inhoud ol {{ margin: 0.4em 0 0.8em 1.5em; }}
-    .viewer-inhoud li {{ margin-bottom: 0.3em; }}
-    .viewer-inhoud table {{ width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 0.85rem; }}
-    .viewer-inhoud td, .viewer-inhoud th {{ border: 1px solid var(--grey-border); padding: 6px 10px; text-align: left; }}
-    .viewer-inhoud th {{ background: var(--grey-bg); font-weight: 600; }}
-
+    .protocol-niveaus {{ display: flex; gap: 10px; flex-wrap: wrap; padding-top: 14px; border-top: 1px solid var(--grey-border); }}
+    .niveau-btn {{ padding: 7px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: all 0.15s; }}
+    .niveau-btn.makkelijk {{ background: #EDF7EE; color: #2e7d32; }}
+    .niveau-btn.makkelijk:hover {{ background: #2e7d32; color: white; }}
+    .niveau-btn.complex {{ background: #EAF0FB; color: #1a4a72; }}
+    .niveau-btn.complex:hover {{ background: #1a4a72; color: white; }}
     .geen-resultaten {{ text-align: center; padding: 64px 24px; color: var(--text-muted); display: none; }}
-    footer {{ background: var(--navy); color: rgba(255,255,255,0.4); text-align: center; padding: 28px 24px; font-size: 0.82rem; }}
-    footer a {{ color: rgba(255,255,255,0.6); text-decoration: none; }}
   </style>
 </head>
 <body>
 
-<header>
-  <div class="header-inner">
-    <a href="index.html" class="logo">
-      <img src="{LOGO_BESTAND}" alt="{SITE_NAAM}" />
-      <div class="logo-text"><span>Kansrijk</span> Opgroeien</div>
-    </a>
-    <nav>
-      <a href="protocollen.html">Protocollen</a>
-      <a href="index.html#zoeken">Zoeken</a>
-      <a href="index.html#specialisaties">Specialisaties</a>
-      <a href="mijn-profiel.html">Mijn profiel</a>
-      <a href="therapeut-aanmelden.html" class="cta">Aanmelden</a>
-    </nav>
-  </div>
-</header>
+{header_html('../index.html', '../index.html')}
 
-<div class="hero">
-  <div class="hero-content">
-    <h1>Behandelprotocollen<br><em>kinderfysiotherapie</em></h1>
-    <p>Wetenschappelijk onderbouwde protocollen voor kinderfysiotherapeuten. Op drie leesniveaus — voor ouders, therapeuten en specialisten.</p>
-    <p style="margin-top:14px;font-size:0.78rem;opacity:0.7;max-width:500px;margin-left:auto;margin-right:auto;">⚠️ Deze protocollen zijn algemene informatie. Ze vervangen geen persoonlijk advies van een arts of kinderfysiotherapeut.</p>
-    <div class="zoekbalk-wrap" style="margin-top:24px">
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <h1>Behandelprotocollen</h1>
+    <p>Wetenschappelijk onderbouwde protocollen voor kinderfysiotherapeuten en begrijpelijke informatie voor ouders.</p>
+    <div class="zoekbalk-wrap">
       <div class="zoekbalk">
-        <input type="text" id="zoek-input" placeholder="Zoek bijv. DCD, motoriek, schrijfproblemen..." oninput="zoek()" />
+        <input type="text" id="zoek-input" placeholder="Zoek bijv. DCD, schrijfproblemen, motoriek..." oninput="zoek()" />
         <button onclick="zoek()">🔍 Zoeken</button>
       </div>
     </div>
@@ -567,59 +839,27 @@ protocollen_html = f'''<!DOCTYPE html>
   </div>
 </div>
 
-<footer>
-  <p>&copy; 2025 {SITE_NAAM} &nbsp;&middot;&nbsp; <a href="index.html">Home</a> &nbsp;&middot;&nbsp; Onderdeel van het <a href="https://vindjefysio.net">VindJeFysio Netwerk</a></p>
-</footer>
+{footer_html()}
 
 <script>
   let actieveZone = 'alle';
-
-  function openProtocol(id, niveau) {{
-    const kaart  = document.getElementById('kaart-' + id);
-    const viewer = document.getElementById('viewer-' + id);
-    const inhoud = document.getElementById('viewer-inhoud-' + id);
-    const titel  = document.getElementById('viewer-titel-' + id);
-    const labels = {{makkelijk:'📗 Makkelijk', gemiddeld:'📘 Gemiddeld', complex:'📕 Complex'}};
-    document.querySelectorAll('.protocol-viewer').forEach(v => {{
-      if (v.id !== 'viewer-' + id) v.style.display = 'none';
-    }});
-    try {{
-      const htmlData = JSON.parse(kaart.dataset.html.replace(/&quot;/g, '"'));
-      inhoud.innerHTML = htmlData[niveau] || '<p>Dit niveau is nog niet beschikbaar.</p>';
-      titel.textContent = labels[niveau] || niveau;
-      viewer.style.display = 'block';
-      viewer.scrollIntoView({{behavior:'smooth', block:'nearest'}});
-    }} catch(e) {{
-      inhoud.innerHTML = '<p>Protocol kon niet worden geladen.</p>';
-      viewer.style.display = 'block';
-    }}
-  }}
-
-  function sluitProtocol(id) {{
-    document.getElementById('viewer-' + id).style.display = 'none';
-  }}
-
-  function normaliseer(t) {{
-    return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  }}
-
+  function normaliseer(t) {{ return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }}
   function zoek() {{
-    const zoekterm = normaliseer(document.getElementById('zoek-input').value);
-    const kaarten  = document.querySelectorAll('.protocol-kaart');
-    let zichtbaar  = 0;
+    const term = normaliseer(document.getElementById('zoek-input').value);
+    const kaarten = document.querySelectorAll('.protocol-kaart');
+    let zichtbaar = 0;
     kaarten.forEach(k => {{
-      const naam      = normaliseer(k.dataset.naam);
-      const tekst     = normaliseer(k.dataset.tekst);
+      const naam  = normaliseer(k.dataset.naam || '');
+      const tekst = normaliseer(k.dataset.tekst || '');
       const zoneMatch = actieveZone === 'alle' || k.dataset.zone === actieveZone;
-      const zoekMatch = !zoekterm || naam.includes(zoekterm) || tekst.includes(zoekterm);
+      const zoekMatch = !term || naam.includes(term) || tekst.includes(term);
       k.classList.toggle('verborgen', !(zoneMatch && zoekMatch));
       if (zoneMatch && zoekMatch) zichtbaar++;
     }});
     document.getElementById('resultaat-info').textContent =
-      (zoekterm || actieveZone !== 'alle') ? zichtbaar + ' protocollen gevonden' : '';
+      (term || actieveZone !== 'alle') ? zichtbaar + ' protocollen gevonden' : '';
     document.getElementById('geen-resultaten').style.display = zichtbaar === 0 ? 'block' : 'none';
   }}
-
   function filterZone(btn, zone) {{
     actieveZone = zone;
     document.querySelectorAll('.zone-btn').forEach(b => b.classList.remove('actief'));
@@ -632,7 +872,7 @@ protocollen_html = f'''<!DOCTYPE html>
 
 with open('protocollen.html', 'w', encoding='utf-8') as f:
     f.write(protocollen_html)
-print(f"✓ protocollen.html gegenereerd met {len(protocol_data)} protocollen")
+print(f"✓  protocollen.html gegenereerd met {len(protocol_data)} protocollen")
 
 # ─────────────────────────────────────────────────────────────
 # SITEMAP
@@ -646,21 +886,19 @@ for p in protocol_data:
     for niveau in p['teksten'].keys():
         sitemap_urls.append(
             f'  <url><loc>{SITE_URL}/protocollen/{p["id"]}-{niveau}.html</loc>'
-            f'<lastmod>{vandaag}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>'
+            f'<lastmod>{vandaag}</lastmod><changefreq>monthly</changefreq>'
+            f'<priority>{"0.9" if niveau=="makkelijk" else "0.8"}</priority></url>'
         )
 
-sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n'
-sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-sitemap += '\n'.join(sitemap_urls)
-sitemap += '\n</urlset>'
-
 with open('sitemap.xml', 'w', encoding='utf-8') as f:
-    f.write(sitemap)
-print(f"✓ sitemap.xml gegenereerd met {len(sitemap_urls)} URLs")
+    f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+    f.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
+    f.write('\n'.join(sitemap_urls))
+    f.write('\n</urlset>')
+print(f"✓  sitemap.xml bijgewerkt")
 
 if fouten:
     print(f"\n⚠️  {len(fouten)} fout(en):")
-    for f in fouten:
-        print(f"   – {f}")
+    for f in fouten: print(f"   – {f}")
 else:
     print("\n✅ Klaar zonder fouten!")
