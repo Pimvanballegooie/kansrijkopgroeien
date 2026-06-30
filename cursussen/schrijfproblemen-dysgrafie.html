@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cursus: Motorische schrijfproblemen bij kinderen | Kansrijk Opgroeien</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-300.woff2') format('woff2'); font-weight: 300; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-500.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-600.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Inter'; src: url('fonts/inter-v20-latin-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --oranje: #E8735A; --oranje-light: #FDF0ED;
+      --groen: #4CAF50; --groen-light: #EDF7EE;
+      --rood: #C0392B; --rood-light: #FDEDEC;
+      --navy: #2C3E50; --navy-dark: #1a252f;
+      --grey-bg: #F8F9FA; --grey-border: #E8ECF0;
+      --text: #2C3E50; --text-muted: #7F8C8D; --white: #FFFFFF;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--text); background: var(--grey-bg); line-height: 1.7; }
+
+    header { background: var(--white); border-bottom: 1px solid var(--grey-border); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .header-inner { max-width: 900px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo img { height: 44px; width: 44px; object-fit: contain; }
+    .logo-text { font-weight: 700; font-size: 0.95rem; color: var(--navy); }
+    .logo-text span { color: var(--oranje); }
+    .terug-link { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; padding: 7px 12px; border-radius: 8px; }
+    .terug-link:hover { background: var(--grey-bg); color: var(--navy); }
+
+    .cursus-hero { background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%); color: white; padding: 40px 24px 32px; }
+    .cursus-hero-inner { max-width: 780px; margin: 0 auto; }
+    .cursus-hero h1 { font-size: clamp(1.4rem, 3vw, 1.9rem); font-weight: 700; margin-bottom: 8px; }
+    .cursus-hero p { opacity: 0.8; font-size: 0.92rem; max-width: 600px; }
+
+    .laad-status { max-width: 780px; margin: 24px auto; padding: 0 24px; text-align: center; color: var(--text-muted); font-size: 0.9rem; }
+
+    .inlog-kaart { max-width: 420px; margin: 60px auto; background: white; border: 1px solid var(--grey-border); border-radius: 16px; padding: 32px; }
+    .inlog-kaart h2 { font-size: 1.1rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+    .inlog-kaart p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
+    .inlog-veld { width: 100%; padding: 12px 14px; border: 1.5px solid var(--grey-border); border-radius: 10px; font-family: inherit; font-size: 0.92rem; margin-bottom: 12px; outline: none; }
+    .inlog-veld:focus { border-color: var(--oranje); }
+    .inlog-btn { width: 100%; padding: 13px; background: var(--oranje); color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 0.92rem; font-weight: 700; cursor: pointer; }
+    .inlog-btn:hover { background: #d4614a; }
+    .inlog-fout { color: var(--rood); font-size: 0.82rem; margin-top: 10px; display: none; }
+    .inlog-fout.zichtbaar { display: block; }
+
+    .voortgangsbalk-wrap { background: var(--white); border-bottom: 1px solid var(--grey-border); padding: 16px 24px; position: sticky; top: 72px; z-index: 90; }
+    .voortgangsbalk-inner { max-width: 780px; margin: 0 auto; }
+    .voortgang-labels { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; }
+    .voortgang-buis { height: 8px; background: var(--grey-border); border-radius: 999px; overflow: hidden; }
+    .voortgang-vulling { height: 100%; background: var(--oranje); border-radius: 999px; transition: width 0.4s ease; width: 0%; }
+
+    .content { max-width: 780px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    .vorig-resultaat-banner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .vorig-resultaat-banner.behaald { background: var(--groen-light); border: 1.5px solid var(--groen); }
+    .vorig-resultaat-banner.niet-behaald { background: var(--rood-light); border: 1.5px solid var(--rood); }
+    .vorig-resultaat-tekst { font-size: 0.88rem; font-weight: 600; }
+    .vorig-resultaat-banner.behaald .vorig-resultaat-tekst { color: #2e7d32; }
+    .vorig-resultaat-banner.niet-behaald .vorig-resultaat-tekst { color: #7b1a12; }
+    .vorig-resultaat-btn { padding: 8px 16px; background: white; border: 1.5px solid var(--grey-border); border-radius: 8px; font-size: 0.82rem; font-weight: 700; color: var(--navy); cursor: pointer; font-family: inherit; }
+
+    .blok-kaart { background: var(--white); border: 1px solid var(--grey-border); border-radius: 16px; padding: 32px; margin-bottom: 20px; }
+    .blok-nummer { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--oranje); background: var(--oranje-light); padding: 4px 14px; border-radius: 999px; margin-bottom: 14px; }
+    .blok-titel { font-size: 1.3rem; font-weight: 700; color: var(--navy); margin-bottom: 20px; }
+
+    .theorie-tekst h3 { font-size: 1rem; font-weight: 700; color: var(--navy); margin: 20px 0 10px; }
+    .theorie-tekst h3:first-child { margin-top: 0; }
+    .theorie-tekst p { margin-bottom: 12px; line-height: 1.75; }
+    .theorie-tekst ul { margin: 10px 0 16px 20px; }
+    .theorie-tekst li { margin-bottom: 8px; line-height: 1.65; }
+    .theorie-tekst strong { color: var(--navy); }
+
+    .verder-knop { display: block; width: 100%; margin-top: 24px; padding: 14px; background: var(--oranje); color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .verder-knop:hover { background: #d4614a; }
+
+    .vraag-blok { border-top: 1px solid var(--grey-border); padding-top: 24px; margin-top: 24px; }
+    .vraag-nummer { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+    .vraag-tekst { font-size: 1rem; font-weight: 600; color: var(--navy); margin-bottom: 16px; line-height: 1.5; }
+    .opties-lijst { display: flex; flex-direction: column; gap: 10px; }
+    .optie-btn { display: flex; align-items: center; gap: 12px; text-align: left; padding: 14px 16px; background: var(--grey-bg); border: 1.5px solid var(--grey-border); border-radius: 10px; font-family: inherit; font-size: 0.9rem; color: var(--text); cursor: pointer; transition: all 0.15s; }
+    .optie-btn:hover:not(:disabled) { border-color: var(--oranje); background: var(--oranje-light); }
+    .optie-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--white); border: 1.5px solid var(--grey-border); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+    .optie-btn.correct { background: var(--groen-light); border-color: var(--groen); }
+    .optie-btn.correct .optie-letter { background: var(--groen); border-color: var(--groen); color: white; }
+    .optie-btn.fout { background: var(--rood-light); border-color: var(--rood); }
+    .optie-btn.fout .optie-letter { background: var(--rood); border-color: var(--rood); color: white; }
+    .optie-btn:disabled { cursor: default; }
+    .optie-btn:disabled:not(.correct):not(.fout) { opacity: 0.5; }
+
+    .blok-afgerond-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 700; color: var(--groen); background: var(--groen-light); padding: 4px 12px; border-radius: 999px; margin-top: 16px; }
+
+    .resultaat-kaart { border-radius: 20px; padding: 40px 32px; text-align: center; margin-bottom: 20px; transition: box-shadow 0.4s; }
+    .resultaat-kaart.geslaagd { background: var(--groen-light); border: 2px solid var(--groen); box-shadow: 0 0 0 8px rgba(76,175,80,0.12), 0 8px 32px rgba(76,175,80,0.18); }
+    .resultaat-kaart.niet-geslaagd { background: var(--rood-light); border: 2px solid var(--rood); box-shadow: 0 0 0 8px rgba(192,57,43,0.10), 0 8px 32px rgba(192,57,43,0.15); }
+    .resultaat-icoon { font-size: 3rem; margin-bottom: 12px; }
+    .resultaat-titel { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+    .resultaat-kaart.geslaagd .resultaat-titel { color: #2e7d32; }
+    .resultaat-kaart.niet-geslaagd .resultaat-titel { color: #7b1a12; }
+    .resultaat-score { font-size: 2.2rem; font-weight: 700; color: var(--navy); margin: 12px 0; }
+    .resultaat-sub { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px; }
+    .resultaat-knoppen { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .resultaat-btn { padding: 11px 22px; border-radius: 8px; font-size: 0.88rem; font-weight: 700; text-decoration: none; cursor: pointer; border: none; font-family: inherit; }
+    .resultaat-btn.primair { background: var(--navy); color: white; }
+    .resultaat-btn.secundair { background: white; color: var(--navy); border: 1.5px solid var(--grey-border); }
+    .opslaan-status { font-size: 0.78rem; color: var(--text-muted); margin-top: 12px; }
+
+    .verborgen { display: none !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="logo">
+      <img src="../Kansrijkopgroeien_logo.png" alt="Kansrijk Opgroeien" />
+      <div class="logo-text"><span>Kansrijk</span> Opgroeien</div>
+    </a>
+    <a href="../mijn-profiel.html" class="terug-link">← Terug naar Mijn profiel</a>
+  </div>
+</header>
+
+<div class="cursus-hero">
+  <div class="cursus-hero-inner">
+    <h1>Motorische schrijfproblemen bij kinderen</h1>
+    <p>Verdiepingscursus over indicatiestelling, diagnostiek en behandeling van schrijfproblemen bij kinderen.</p>
+  </div>
+</div>
+
+<div id="inlog-scherm" class="inlog-kaart">
+  <h2>Inloggen om te starten</h2>
+  <p>Log in met uw therapeutaccount om de cursus te volgen en uw voortgang op te slaan.</p>
+  <input type="email" id="inlog-email" class="inlog-veld" placeholder="E-mailadres" autocomplete="username" />
+  <input type="password" id="inlog-wachtwoord" class="inlog-veld" placeholder="Wachtwoord" autocomplete="current-password" />
+  <button class="inlog-btn" onclick="inloggen()">Inloggen</button>
+  <div class="inlog-fout" id="inlog-fout"></div>
+</div>
+
+<div id="laad-status" class="laad-status verborgen">Bezig met laden...</div>
+
+<div id="cursus-wrapper" class="verborgen">
+  <div class="voortgangsbalk-wrap">
+    <div class="voortgangsbalk-inner">
+      <div class="voortgang-labels">
+        <span id="voortgang-tekst">Blok 1 van 4</span>
+        <span id="voortgang-percentage">0%</span>
+      </div>
+      <div class="voortgang-buis"><div class="voortgang-vulling" id="voortgang-vulling"></div></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div id="vorig-resultaat-container"></div>
+    <div id="blokken-container"></div>
+    <div id="eindresultaat-container" class="verborgen"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://islujznszevdynguhjdc.supabase.co';
+const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzbHVqem5zemV2ZHluZ3VoamRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NDYzMDAsImV4cCI6MjA5NzIyMjMwMH0.wh3RXZRKfpfArr3YBYu8ktE7xv1inwDD72Vq3LJl3QQ';
+
+// LET OP: dit is de SLUG van de cursus, niet het numerieke id.
+// Dit is hetzelfde patroon als bestaande cursussen (bijv. 'instabiele-enkel-v1').
+const CURSUS_SLUG = 'schrijfproblemen-dysgrafie-v1';
+const BLOKKEN = [
+  {
+    "volgorde": 1,
+    "titel": "Indicatiestelling: wanneer kinderfysiotherapie?",
+    "theorie_html": "\n<h3>Wat is een schrijfprobleem?</h3>\n<p>Er is sprake van een schrijfprobleem wanneer het handschrift niet of nauwelijks leesbaar is (dysgrafie), het tempo te traag is, de schrijfbeweging niet aangeleerd kan worden en/of er pijn of vermoeidheid optreedt bij het schrijven &mdash; zonder dat er sprake is van een intellectueel tekort of somatische pathologie (KNGF Evidence Statement, 2011).</p>\n\n<h3>De vijf profielen</h3>\n<p>Niet elk schrijfprobleem is een indicatie voor kinderfysiotherapie. Het KNGF Evidence Statement onderscheidt vijf profielen:</p>\n<ul>\n<li><strong>Profiel A &mdash; Motorisch:</strong> fouten in letteroriëntatie, spoor, verbindingen, druk, snelheid, fijne motoriek. <strong>Indicatie: ja.</strong></li>\n<li><strong>Profiel B &mdash; Cognitief/gedragsmatig:</strong> fouten in spellen, stellen, klank-tekenkoppeling; handschrift zelf leesbaar. <strong>Indicatie: nee</strong> &mdash; onderwijs/orthopedagoog.</li>\n<li><strong>Profiel C &mdash; Didactisch:</strong> te weinig oefening, wisselende leeromstandigheden; motorische mogelijkheden voldoende. <strong>Indicatie: nee</strong> &mdash; advies aan school.</li>\n<li><strong>Profiel D &mdash; Combinatie:</strong> motorisch + cognitief/gedragsmatig. <strong>Indicatie: optioneel</strong>, multidisciplinair.</li>\n<li><strong>Profiel E &mdash; Onderliggende pathologie:</strong> tonus, neuromusculair, cerebraal. <strong>Consultatie vereist</strong> voordat verder wordt gegaan.</li>\n</ul>\n\n<h3>Praktijkregel</h3>\n<p>Kinderfysiotherapie is geïndiceerd bij motorisch bepaalde schrijfproblemen (profiel A), optioneel bij combinatieprofielen (D), en <strong>niet</strong> bij uitsluitend cognitieve of didactische problematiek (B, C). Het onderscheid maken tussen deze profielen is de kern van de eerste fase van het klinisch redeneren.</p>\n",
+    "vragen": [
+      {
+        "vraag": "Een kind heeft moeite met spellen en klank-tekenkoppeling, maar het handschrift zelf is goed leesbaar. Bij welk profiel hoort dit, en is er een indicatie voor kinderfysiotherapie?",
+        "opties": [
+          "Profiel A — wel indicatie",
+          "Profiel B — geen indicatie, doorverwijzen naar onderwijs",
+          "Profiel D — optionele indicatie",
+          "Profiel E — consultatie vereist"
+        ],
+        "juist_index": 1
+      },
+      {
+        "vraag": "Wat is de juiste definitie van een schrijfprobleem volgens het KNGF Evidence Statement?",
+        "opties": [
+          "Elk kind dat slordiger schrijft dan klasgenoten",
+          "Onleesbaar handschrift, te traag tempo, en/of pijn of vermoeidheid bij schrijven, zonder intellectueel tekort of somatische pathologie",
+          "Een IQ-score onder het gemiddelde gecombineerd met schrijfklachten",
+          "Elke afwijking ten opzichte van de schoolnorm voor handschrift"
+        ],
+        "juist_index": 1
+      },
+      {
+        "vraag": "Bij welk profiel is altijd eerst nadere consultatie nodig voordat met kinderfysiotherapeutische interventie gestart kan worden?",
+        "opties": [
+          "Profiel A",
+          "Profiel C",
+          "Profiel D",
+          "Profiel E"
+        ],
+        "juist_index": 3
+      }
+    ]
+  },
+  {
+    "volgorde": 2,
+    "titel": "Diagnostiek en meetinstrumenten",
+    "theorie_html": "\n<h3>Het diagnostisch proces</h3>\n<p>Het klinisch redeneren doorloopt zes stappen conform het HOAC-II model: analyse hulpvraag, analyse schrijftaak, kinderfysiotherapeutisch onderzoek, diagnose/profiel, behandelplan, en evaluatie.</p>\n\n<h3>Kernmeetinstrumenten</h3>\n<ul>\n<li><strong>BHK</strong> (Beknopte beoordelingsmethode voor kinderhandschriften, Hamstra-Bletz et al. 1987): meet zowel kwaliteit als snelheid van het handschrift. Toepasbaar bij groep 4-5, vijf minuten overschrijven.</li>\n<li><strong>SOS / Schoolvragenlijst</strong> (Smits-Engelsman, 1995): door de leerkracht in te vullen, voor 7-12 jaar, geschikt om schrijfproblemen op te sporen.</li>\n<li><strong>Movement ABC-2-NL</strong> (Henderson et al. 2007): meet fijne én grove motoriek, 3-16 jaar, Nederlandse normering.</li>\n<li><strong>Successieve vinger-duimoppositietaak</strong> (Largo et al. 2001): voor fijne motoriek, normen 5-18 jaar.</li>\n<li><strong>KOEK 100-gatenbord</strong> (Van Hartingsveldt et al. 2006): meet in-handmanipulatie/translatie, normen 3-7 jaar.</li>\n<li><strong>Beery VMI</strong> (5e editie): visuomotorische integratie, <em>niet standaard</em> &mdash; alleen bij specifiek vermoeden.</li>\n</ul>\n\n<h3>Belangrijke nuance: pengreep</h3>\n<p>De projectgroep adviseert terughoudend te zijn met het corrigeren van de pengreep. Correctie is alleen zinvol als dit het schrijfresultaat aantoonbaar verbetert. Gebruik de 10-pengrepenschaal van Schneck en Henderson voor een uniforme beschrijving.</p>\n",
+    "vragen": [
+      {
+        "vraag": "Welk meetinstrument is het meest geschikt om zowel de kwaliteit als de snelheid van het handschrift te meten?",
+        "opties": [
+          "Movement ABC-2-NL",
+          "BHK (Beknopte beoordelingsmethode voor kinderhandschriften)",
+          "Beery VMI",
+          "KOEK 100-gatenbord"
+        ],
+        "juist_index": 1
+      },
+      {
+        "vraag": "Wanneer is de Beery VMI geïndiceerd volgens het protocol?",
+        "opties": [
+          "Standaard bij elk kind met schrijfproblemen",
+          "Alleen bij vermoeden van een visuomotorische integratiestoornis",
+          "Alleen bij kinderen ouder dan 12 jaar",
+          "Nooit, dit instrument is verouderd"
+        ],
+        "juist_index": 1
+      },
+      {
+        "vraag": "Wat adviseert de projectgroep over het corrigeren van de pengreep?",
+        "opties": [
+          "Altijd corrigeren naar de dynamische driepuntsgreep",
+          "Terughoudend zijn — alleen corrigeren als dit het schrijfresultaat aantoonbaar verbetert",
+          "Nooit corrigeren, de pengreep heeft geen enkele invloed op het schrijfresultaat",
+          "Pengreep corrigeren is de eerste stap in elke behandeling"
+        ],
+        "juist_index": 1
+      },
+      {
+        "vraag": "Voor welke leeftijdsgroep is de successieve vinger-duimoppositietaak (methode Largo) genormeerd?",
+        "opties": [
+          "0-3 jaar",
+          "3-7 jaar",
+          "5-18 jaar",
+          "Alleen volwassenen"
+        ],
+        "juist_index": 2
+      }
+    ]
+  },
+  {
+    "volgorde": 3,
+    "titel": "Interventie: wat werkt en wat niet",
+    "theorie_html": "\n<h3>Evidentie per interventietype</h3>\n<ul>\n<li><strong>Sensomotorische stimulaties</strong> (zand, scheercrème, propriocepsis) zonder schrijfkoppeling: <strong>geen specifiek effect aangetoond</strong> (Sudsawad et al. 2002; Denton et al. 2006). Niet aanbevolen als zelfstandige interventie.</li>\n<li><strong>Taakgerichte zelfinstructie</strong> op schrijftaakniveau: significant effect op kwaliteit bij groep 3-6. Aanbevolen, met zelfevaluatie.</li>\n<li><strong>Visuele aanwijzingen + geheugenophaling</strong> bij aanleren van letters: significant beter dan overtrekken of imitatie (Berninger et al. 1997; Vinter &amp; Chartrel 2010).</li>\n<li><strong>Blocked practice</strong> bij initieel aanleren (3-4 letters tegelijk): beter leereffect direct na oefening.</li>\n<li><strong>Random practice</strong> na letterbeheersing: beter voor transfer en retentie.</li>\n</ul>\n\n<h3>Behandelprincipes</h3>\n<p>Taakspecificiteit staat centraal: oefen het schrijven zelf, geen sensomotorische omwegen zonder koppeling aan letters of woorden. Time on task is de sterkste voorspeller van effect. In groep 3 ligt de nadruk op visuele aanwijzingen en klank-tekenkoppeling; vanaf groep 4 op taakgerichte zelfinstructie met zelfevaluatie.</p>\n<p>Probleemletters prioriteren is essentieel: 4-8 letters bepalen meer dan de helft van de onleesbaarheid van het handschrift (Graham et al. 1998). Verbonden schrift heeft de voorkeur boven blokschrift vanwege de hogere uiteindelijke schrijfsnelheid na automatisering.</p>\n\n<h3>Niet aanbevolen</h3>\n<p>Kinesthesietraining als zelfstandige interventie heeft geen aangetoond effect (Lord &amp; Hulme, 1987). Vroeg omschakelen naar typen is evenmin verstandig &mdash; schrijven moet eerst voldoende geautomatiseerd zijn voordat typen een zinvol alternatief wordt.</p>\n",
+    "vragen": [
+      {
+        "vraag": "Wat is de evidentie voor sensomotorische stimulaties (zoals tekenen in scheercrème) als zelfstandige interventie?",
+        "opties": [
+          "Sterk bewezen effectief, eerste keuze bij elk kind",
+          "Geen specifiek effect aangetoond op het handschrift",
+          "Alleen effectief bij kinderen jonger dan 5 jaar",
+          "Effectief, maar alleen in combinatie met medicatie"
+        ],
+        "juist_index": 1
+      },
+      {
+        "vraag": "Wanneer is blocked practice (herhaald oefenen van dezelfde letters) het meest geschikt?",
+        "opties": [
+          "Bij het initieel aanleren van nieuwe letters",
+          "Pas nadat alle letters van het alfabet beheerst worden",
+          "Alleen bij kinderen met DCD",
+          "Blocked practice wordt nooit aanbevolen"
+        ],
+        "juist_index": 0
+      },
+      {
+        "vraag": "Hoeveel letters bepalen volgens onderzoek (Graham et al. 1998) doorgaans meer dan de helft van de onleesbaarheid van een handschrift?",
+        "opties": [
+          "1-2 letters",
+          "4-8 letters",
+          "Alle 26 letters in gelijke mate",
+          "15-20 letters"
+        ],
+        "juist_index": 1
+      },
+      {
+        "vraag": "Wat is het advies over overschakelen naar typen bij schrijfproblemen?",
+        "opties": [
+          "Direct overschakelen zodra schrijfproblemen worden vastgesteld",
+          "Typen vervangt schrijven volledig vanaf groep 5",
+          "Schrijven moet eerst voldoende geautomatiseerd zijn voordat typen een zinvol alternatief wordt",
+          "Typen wordt nooit aanbevolen, ongeacht de situatie"
+        ],
+        "juist_index": 2
+      }
+    ]
+  },
+  {
+    "volgorde": 4,
+    "titel": "Verdieping: theoretisch kader en klinisch redeneren",
+    "theorie_html": "\n<h3>Het procesmodel van Van Galen en Smits-Engelsman</h3>\n<p>Schrijven verloopt via hiërarchische niveaus: intentioneel, linguïstisch, lexicaal, foneem-grafeemconversie, allograafselectie/motorprogrammering, parametrisatie en initiatie. De kinderfysiotherapeut richt zich primair op de laatste drie niveaus &mdash; de motorische uitvoering.</p>\n<p>Bij <strong>allograafselectie/motorprogrammering</strong> gaat het om fouten in letteroriëntatie, spoor en verbindingen. Bij <strong>parametrisatie</strong> om te veel of te weinig aanpassing in grootte, richting, druk en snelheid aan de taakeisen. Bij <strong>initiatie</strong> om kracht-, tonus- en cocontractieproblemen.</p>\n\n<h3>Multimodale representaties</h3>\n<p>Schrijven activeert altijd een multimodaal neuraal netwerk: visuele vorm, auditieve klank, motorisch programma en kinesthetische feedback worden als geïntegreerde eenheid opgeslagen (Longcamp et al. 2003-2008). Dit verklaart waarom schrijven het leesproces ondersteunt, en is de wetenschappelijke basis voor de taakgerichte aanpak boven losse sensomotorische stimulatie.</p>\n\n<h3>Dosering</h3>\n<p>Effectieve interventieduur is gemiddeld 6-20 uur totaal, verdeeld over 6 weken tot 6 maanden, met een frequentie van 1-2 keer per week. Time on task is de sterkste voorspeller: een kortdurende intensieve training (bijvoorbeeld 10 minuten dagelijks op school) kan al snel effect opleveren.</p>\n\n<h3>Differentiaaldiagnostiek</h3>\n<p>Bij DCD vallen kinderen met uitsluitend specifieke schrijfproblemen niet altijd uit op de totaalscore van de Movement ABC &mdash; hiervoor zijn specifieke schrijftests nodig. Bij sensorische prikkelverwerkingsproblemen zijn taakmanipulaties diagnostisch waardevoller dan sensomotorische stimulatie als interventie op zich.</p>\n",
+    "vragen": [
+      {
+        "vraag": "Op welke niveaus van het procesmodel van Van Galen en Smits-Engelsman richt de kinderfysiotherapeut zich primair?",
+        "opties": [
+          "Intentioneel en linguïstisch niveau",
+          "Lexicaal en foneem-grafeemconversie niveau",
+          "Allograafselectie/motorprogrammering, parametrisatie en initiatie",
+          "Alleen het intentionele niveau"
+        ],
+        "juist_index": 2
+      },
+      {
+        "vraag": "Wat wordt bedoeld met 'parametrisatie' in het procesmodel?",
+        "opties": [
+          "De keuze welk lettertype (allograaf) gebruikt wordt",
+          "De aanpassing van grootte, richting, druk en snelheid aan de taakeisen",
+          "Het kiezen van de juiste woorden in een zin",
+          "De spelling van een woord"
+        ],
+        "juist_index": 1
+      },
+      {
+        "vraag": "Wat is de typische effectieve interventieduur volgens de onderzochte studies?",
+        "opties": [
+          "1-2 uur in totaal",
+          "6-20 uur totaal, verdeeld over 6 weken tot 6 maanden",
+          "Minimaal 100 uur over 2 jaar",
+          "Eenmalige sessie van 3 uur"
+        ],
+        "juist_index": 1
+      },
+      {
+        "vraag": "Waarom vallen kinderen met uitsluitend specifieke schrijfproblemen soms niet uit op de totaalscore van de Movement ABC?",
+        "opties": [
+          "Omdat de Movement ABC niet betrouwbaar is",
+          "Omdat schrijfproblemen geen relatie hebben met motoriek",
+          "Omdat de samenstelling van de items en de berekening van de totaalscore specifieke schrijfproblemen kan maskeren — specifieke schrijftests zijn dan nodig",
+          "Omdat de Movement ABC alleen voor volwassenen is genormeerd"
+        ],
+        "juist_index": 2
+      }
+    ]
+  }
+].map((b, i) => ({ ...b, blok_id: `blok-${i + 1}` }));
+const SLAAGGRENS = 80;
+
+let authToken = null;
+let therapeutCode = null; // = therapeuten.code, met email als terugval
+
+let huidigBlokIndex = 0;
+let goedeAntwoorden = 0;
+let totaalVragen = BLOKKEN.reduce((som, b) => som + b.vragen.length, 0);
+let beantwoordeVragen = 0;
+let goedPerBlok = {}; // { 'blok-1': { goed: 3, totaal: 3 } }
+
+// ── INLOGGEN (zelfde patroon als mijn-profiel.html van enkelvoet) ──
+async function inloggen() {
+  const email = document.getElementById('inlog-email').value.trim();
+  const wachtwoord = document.getElementById('inlog-wachtwoord').value;
+  const foutEl = document.getElementById('inlog-fout');
+  foutEl.classList.remove('zichtbaar');
+
+  if (!email || !wachtwoord) {
+    foutEl.textContent = 'Vul uw e-mailadres en wachtwoord in.';
+    foutEl.classList.add('zichtbaar');
+    return;
+  }
+
+  try {
+    const authResp = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: wachtwoord })
+    });
+    const authData = await authResp.json();
+
+    if (!authResp.ok || !authData.access_token) {
+      foutEl.textContent = 'Ongeldig e-mailadres of wachtwoord.';
+      foutEl.classList.add('zichtbaar');
+      return;
+    }
+
+    authToken = authData.access_token;
+    const authHeaders = { 'apikey': ANON_KEY, 'Authorization': `Bearer ${authToken}` };
+
+    const tResp = await fetch(
+      `${SUPABASE_URL}/rest/v1/therapeuten?email=eq.${encodeURIComponent(email)}&actief=eq.true&select=*`,
+      { headers: authHeaders }
+    );
+    const tData = await tResp.json();
+
+    if (!tData || tData.length === 0) {
+      foutEl.textContent = 'Geen actief therapeutprofiel gevonden voor dit e-mailadres.';
+      foutEl.classList.add('zichtbaar');
+      return;
+    }
+
+    const t = tData[0];
+    therapeutCode = t.code || t.email; // zelfde fallback-patroon als enkelvoet
+
+    document.getElementById('inlog-scherm').classList.add('verborgen');
+    document.getElementById('laad-status').classList.remove('verborgen');
+
+    await startCursus(authHeaders);
+
+  } catch (e) {
+    console.error('Inlogfout:', e);
+    foutEl.textContent = 'Er ging iets mis bij het inloggen. Probeer het opnieuw.';
+    foutEl.classList.add('zichtbaar');
+  }
+}
+
+// ── CURSUS STARTEN: bestaande voortgang per blok ophalen ─────
+async function startCursus(authHeaders) {
+  try {
+    const vResp = await fetch(
+      `${SUPABASE_URL}/rest/v1/cursus_voortgang?therapeut_code=eq.${encodeURIComponent(therapeutCode)}&cursus_id=eq.${CURSUS_SLUG}&select=*`,
+      { headers: authHeaders }
+    );
+    const vData = await vResp.json();
+
+    document.getElementById('laad-status').classList.add('verborgen');
+    document.getElementById('cursus-wrapper').classList.remove('verborgen');
+
+    if (vData && vData.length === BLOKKEN.length && vData.every(v => v.geslaagd !== null)) {
+      const gemiddeldeScore = Math.round(
+        vData.reduce((som, v) => som + v.score, 0) / vData.length
+      );
+      const allesGeslaagd = vData.every(v => v.geslaagd);
+      toonVorigResultaat(gemiddeldeScore, allesGeslaagd);
+    }
+
+    updateVoortgang();
+    renderBlok(0);
+
+  } catch (e) {
+    console.error('Fout bij starten cursus:', e);
+    document.getElementById('laad-status').textContent = 'Er ging iets mis bij het laden van de cursus.';
+    document.getElementById('laad-status').classList.remove('verborgen');
+  }
+}
+
+function toonVorigResultaat(score, geslaagd) {
+  const html = `<div class="vorig-resultaat-banner ${geslaagd ? 'behaald' : 'niet-behaald'}">
+    <div class="vorig-resultaat-tekst">
+      ${geslaagd ? '✓ U heeft deze cursus al behaald' : '○ Eerdere poging niet behaald'}
+      (${score}%)
+    </div>
+    <button class="vorig-resultaat-btn" onclick="document.getElementById('vorig-resultaat-container').innerHTML=''">Sluiten en opnieuw doen</button>
+  </div>`;
+  document.getElementById('vorig-resultaat-container').innerHTML = html;
+}
+
+function shuffle(array) {
+  const a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function updateVoortgang() {
+  const percentage = Math.round((beantwoordeVragen / totaalVragen) * 100);
+  document.getElementById('voortgang-vulling').style.width = percentage + '%';
+  document.getElementById('voortgang-percentage').textContent = percentage + '%';
+  document.getElementById('voortgang-tekst').textContent =
+    huidigBlokIndex < BLOKKEN.length
+      ? `Blok ${huidigBlokIndex + 1} van ${BLOKKEN.length}`
+      : 'Cursus afgerond';
+}
+
+function renderBlok(blokIndex) {
+  const blok = BLOKKEN[blokIndex];
+  const container = document.getElementById('blokken-container');
+  const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+  goedPerBlok[blok.blok_id] = { goed: 0, totaal: blok.vragen.length };
+
+  const vragenMetRotatie = blok.vragen.map(v => {
+    const indices = v.opties.map((_, i) => i);
+    const gerouleerd = shuffle(indices);
+    const nieuweJuistIndex = gerouleerd.indexOf(v.juist_index);
+    return {
+      vraag: v.vraag,
+      opties: gerouleerd.map(i => v.opties[i]),
+      juist_index: nieuweJuistIndex
+    };
+  });
+
+  const vragenHtml = vragenMetRotatie.map((v, vi) => {
+    const optiesHtml = v.opties.map((optie, oi) =>
+      `<button class="optie-btn" onclick="beantwoordVraag('${blok.blok_id}', ${blokIndex}, ${vi}, ${oi}, ${v.juist_index}, this)">
+        <span class="optie-letter">${letters[oi]}</span>
+        <span>${optie}</span>
+      </button>`
+    ).join('');
+
+    return `<div class="vraag-blok" data-vraag-index="${vi}">
+      <div class="vraag-nummer">Vraag ${vi + 1} van ${blok.vragen.length}</div>
+      <div class="vraag-tekst">${v.vraag}</div>
+      <div class="opties-lijst">${optiesHtml}</div>
+    </div>`;
+  }).join('');
+
+  const blokHtml = `<div class="blok-kaart" id="blok-${blokIndex}">
+    <div class="blok-nummer">Blok ${blokIndex + 1} van ${BLOKKEN.length}</div>
+    <div class="blok-titel">${blok.titel}</div>
+    <div class="theorie-tekst">${blok.theorie_html}</div>
+    <button class="verder-knop" id="naar-vragen-${blokIndex}" onclick="toonVragen(${blokIndex})">Ik heb de theorie gelezen — naar de vragen →</button>
+    <div id="vragen-${blokIndex}" class="verborgen">${vragenHtml}</div>
+  </div>`;
+
+  container.insertAdjacentHTML('beforeend', blokHtml);
+  document.getElementById(`blok-${blokIndex}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toonVragen(blokIndex) {
+  document.getElementById(`naar-vragen-${blokIndex}`).classList.add('verborgen');
+  document.getElementById(`vragen-${blokIndex}`).classList.remove('verborgen');
+}
+
+async function beantwoordVraag(blokId, blokIndex, vraagIndex, gekozenIndex, juistIndex, knopEl) {
+  const vraagBlokEl = knopEl.closest('.vraag-blok');
+  const alleOpties = vraagBlokEl.querySelectorAll('.optie-btn');
+
+  if (alleOpties[0].disabled) return;
+
+  alleOpties.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === juistIndex) btn.classList.add('correct');
+    else if (i === gekozenIndex) btn.classList.add('fout');
+  });
+
+  beantwoordeVragen++;
+  const wasCorrect = gekozenIndex === juistIndex;
+  if (wasCorrect) {
+    goedeAntwoorden++;
+    goedPerBlok[blokId].goed++;
+  }
+
+  updateVoortgang();
+
+  // Antwoord direct wegschrijven naar cursus_antwoorden (zelfde patroon als bestaand systeem)
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/cursus_antwoorden`, {
+      method: 'POST',
+      headers: {
+        'apikey': ANON_KEY, 'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json', 'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        therapeut_code: therapeutCode,
+        cursus_id: CURSUS_SLUG,
+        blok_id: blokId,
+        vraag_id: `${blokId}-vraag-${vraagIndex + 1}`,
+        correct: wasCorrect,
+        ingediend_op: new Date().toISOString()
+      })
+    });
+  } catch (e) {
+    console.error('Antwoord opslaan mislukt:', e);
+  }
+
+  const klaarInBlok = [...document.querySelectorAll(`#vragen-${blokIndex} .vraag-blok`)]
+    .every(vb => vb.querySelector('.optie-btn').disabled);
+
+  if (klaarInBlok) {
+    await slaBlokVoortgangOp(blokId);
+    setTimeout(() => {
+      const blokKaart = document.getElementById(`blok-${blokIndex}`);
+      blokKaart.insertAdjacentHTML('beforeend', '<div class="blok-afgerond-badge">✓ Blok afgerond</div>');
+      gaNaarVolgendBlok(blokIndex);
+    }, 600);
+  }
+}
+
+// Voortgang per blok wegschrijven (zelfde structuur als bestaand systeem)
+async function slaBlokVoortgangOp(blokId) {
+  const { goed, totaal } = goedPerBlok[blokId];
+  const scorePercentage = Math.round((goed / totaal) * 100);
+  const geslaagd = scorePercentage >= SLAAGGRENS;
+
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/cursus_voortgang`, {
+      method: 'POST',
+      headers: {
+        'apikey': ANON_KEY, 'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json', 'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        therapeut_code: therapeutCode,
+        cursus_id: CURSUS_SLUG,
+        blok_id: blokId,
+        score: scorePercentage,
+        geslaagd: geslaagd,
+        datum_afgerond: new Date().toISOString()
+      })
+    });
+  } catch (e) {
+    console.error('Blok-voortgang opslaan mislukt:', e);
+  }
+}
+
+function gaNaarVolgendBlok(huidigeIndex) {
+  huidigBlokIndex = huidigeIndex + 1;
+  if (huidigBlokIndex < BLOKKEN.length) {
+    setTimeout(() => renderBlok(huidigBlokIndex), 700);
+  } else {
+    setTimeout(() => toonEindresultaat(), 700);
+  }
+}
+
+function toonEindresultaat() {
+  const percentage = Math.round((goedeAntwoorden / totaalVragen) * 100);
+  const geslaagd = percentage >= SLAAGGRENS;
+
+  document.getElementById('voortgang-tekst').textContent = 'Cursus afgerond';
+
+  const html = `
+    <div class="resultaat-kaart ${geslaagd ? 'geslaagd' : 'niet-geslaagd'}">
+      <div class="resultaat-icoon">${geslaagd ? '🎉' : '📚'}</div>
+      <div class="resultaat-titel">${geslaagd ? 'Cursus behaald!' : 'Nog niet behaald'}</div>
+      <div class="resultaat-score">${percentage}%</div>
+      <div class="resultaat-sub">
+        ${goedeAntwoorden} van de ${totaalVragen} vragen goed beantwoord
+        ${geslaagd ? '— minimaal 80% is vereist, dit is behaald.' : '— minimaal 80% is vereist om te slagen.'}
+      </div>
+      <div class="resultaat-knoppen">
+        <button class="resultaat-btn primair" onclick="location.reload()">Cursus opnieuw doen</button>
+        <a class="resultaat-btn secundair" href="../mijn-profiel.html">Terug naar Mijn profiel</a>
+      </div>
+      <div class="opslaan-status">✓ Resultaat per blok is automatisch opgeslagen</div>
+    </div>`;
+
+  document.getElementById('eindresultaat-container').innerHTML = html;
+  document.getElementById('eindresultaat-container').classList.remove('verborgen');
+  document.getElementById('eindresultaat-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('inlog-wachtwoord').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') inloggen();
+  });
+});
+</script>
+
+</body>
+</html>
