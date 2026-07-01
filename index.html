@@ -388,6 +388,8 @@ function initDiscKnoppen() {
   actieveDiscs = new Set(geordend); // Start met alles aan
   renderDiscKnoppen(geordend);
 }
+
+const CATEGORIEEN = [
   { id:1, icon:'🏃', naam:'Motorische ontwikkeling', sub:'Loopt laat, valt veel, coördinatie', termen:['motorisch','motoriek','lopen','coördinatie','vallen','bewegen','DCD','ontwikkeling'] },
   { id:2, icon:'✏️', naam:'Schrijven & fijne motoriek', sub:'Schrijfproblemen, knippen, koppelen', termen:['schrijven','schrijfproblemen','fijne motoriek','knippen','dysgrafie','potlood','pen','veters','knoopjes'] },
   { id:3, icon:'⚽', naam:'Sport, groei & blessures', sub:'Sportblessures, groeipijn', termen:['sport','blessure','groeipijn','osgood','overbelasting','voetbal','hardlopen','springen'] },
@@ -466,24 +468,30 @@ async function laadData() {
     });
     allePraktijken = Object.values(praktijkMap);
 
-    // Geocode zonder coordinaten
-    for (const p of allePraktijken) {
-      if (!p.lat || !p.lng) {
-        const coords = await geocodeAdres(p.straat || '', p.stad || '');
-        if (coords) { p.lat = coords.lat; p.lng = coords.lng; }
-      }
-    }
-
     // Init kaart
     kaart = L.map('kaart').setView([52.1, 5.2], 7);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>'
     }).addTo(kaart);
 
-    console.log(`✓ ${allePraktijken.length} praktijken geladen`);
+    // ✅ Direct discipline knoppen tonen — niet wachten op geocoding
     initDiscKnoppen();
+    console.log(`✓ ${allePraktijken.length} praktijken geladen`);
+
+    // Geocode op achtergrond (non-blocking)
+    geocodeAlles();
+
   } catch(e) {
     console.error('Laad fout:', e);
+  }
+}
+
+async function geocodeAlles() {
+  for (const p of allePraktijken) {
+    if (!p.lat || !p.lng) {
+      const coords = await geocodeAdres(p.straat || '', p.stad || '');
+      if (coords) { p.lat = coords.lat; p.lng = coords.lng; }
+    }
   }
 }
 
