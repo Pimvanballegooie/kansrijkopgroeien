@@ -739,11 +739,11 @@ function renderResultaten(lijst) {
       ${p.telefoon ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">📞 <a href="tel:${p.telefoon}" onclick="event.stopPropagation()" style="color:var(--text-muted);text-decoration:none">${p.telefoon}</a></div>` : ''}
       ${p.website ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">🌐 <a href="${p.website}" target="_blank" onclick="event.stopPropagation()" style="color:var(--text-muted);text-decoration:none">Website</a></div>` : ''}
       ${bioKort ? `<div style="font-size:0.82rem;color:var(--text-muted);line-height:1.55;margin-bottom:12px">${bioKort}${bio.length > 90 ? ` <span style="color:var(--oranje);font-weight:600;cursor:pointer">Lees meer</span>` : ''}</div>` : ''}
-      <a href="therapeuten.html?praktijk=${p.id}" onclick="event.stopPropagation()"
-        style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--groen);color:white;border-radius:8px;padding:10px 16px;font-size:0.88rem;font-weight:700;text-decoration:none;transition:background 0.2s;margin-top:4px"
+      <button onclick="event.stopPropagation(); window.location.href='therapeuten.html?praktijk=${p.id}'"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--groen);color:white;border:none;border-radius:8px;padding:11px 16px;font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;transition:background 0.2s;margin-top:4px"
         onmouseover="this.style.background='#3d8b40'" onmouseout="this.style.background='var(--groen)'">
         👥 Bekijk therapeuten
-      </a>
+      </button>
     </div>`;
   }).join('');
 
