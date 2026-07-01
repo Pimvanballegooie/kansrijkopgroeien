@@ -98,13 +98,36 @@ const HEADERS = { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}` };
 
 const KO_SUBCAT_IDS = new Set([1,2,3,4,5,6,7,8,9,10]);
 const SUBCAT_NAMEN = {
+  // Kansrijk opgroeien
   1:'Motorische ontwikkeling',2:'Schrijven & fijne motoriek',3:'Sport, groei & blessures',
   4:'Houding & wervelkolom',5:'Ademhaling',6:'Zuigeling & jong kind',
   7:'Sensorische prikkelverwerking',8:'Revalidatie & operatie',9:'Complexe ontwikkeling',
   10:'Manuele therapie bij kinderen',
+  // Gezond oud worden
+  11:'Kwetsbaarheid & mobiliteit',12:'Valpreventie & balans',13:'Dementie & bewegen',
+  14:'Herstel na ziekenhuisopname',15:'Voorbereiding op operatie',16:'Revalidatie na operatie',
+  17:'Sport & overbelasting',18:'Ouderen met levenslange beperking',
+  // Neurologie
+  19:'CVA & NAH',20:'Parkinson',21:'MS',22:'Neuromusculaire aandoeningen',23:'Duizeligheid & evenwicht',
+  // Mentale gezondheid
+  24:'Psychosomatische klachten',25:'Ademhaling & hyperventilatie',26:'Functionele neurologische stoornis',
+  // Chronische zorg
+  27:'Longklachten',28:'Etalagebenen',29:'Hartrevalidatie',30:'Oncologische revalidatie',
+  31:'Chronische pijn',32:'Chronische vermoeidheid',33:'Diabetes & bewegen',
+  34:'Reuma, artrose & botgezondheid',35:'Voorbereiding op operatie',
+  // Rug, nek en bekken
+  36:'Lage rugklachten',37:'Nekklachten',38:'Bekkenklachten',39:'Houding & scoliose',
+  40:'Revalidatie na operatie',41:'Sport & overbelasting',42:'Voorbereiding op operatie',
   // Benen
   43:'Heup, lies & bovenbeen',44:'Knie & onderbeen',45:'Enkel & voet',
-  46:'Artrose',47:'Revalidatie na operatie',48:'Voorbereiding op operatie',49:'Sport & overbelasting'
+  46:'Artrose',47:'Revalidatie na operatie',48:'Voorbereiding op operatie',49:'Sport & overbelasting',
+  // Armen
+  50:'Schouder & bovenarm',51:'Elleboog & onderarm',52:'Pols & hand',
+  53:'Revalidatie na operatie',54:'Voorbereiding op operatie',55:'Sport & overbelasting',
+  // Behandelvormen
+  56:'Manuele therapie',57:'Sportfysiotherapie',58:'Dry needling',59:'Echografie',
+  60:'Shockwave',61:'Oedeem & lymfe',62:'Kaakfysiotherapie',
+  63:'Leefstijl & beweegprogrammas',64:'Groepsprogrammas',65:'EPTE',66:'Bekkenfysiotherapie'
 };
 
 async function laadPagina() {
