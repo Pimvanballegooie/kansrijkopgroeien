@@ -353,7 +353,9 @@ const DISC_AFKORTING = {
 };
 
 // Welke disciplines standaard actief zijn (alles aan bij start)
-let actieveDiscs = new Set(ALLE_DISCIPLINES);
+let actieveDiscs = new Set();
+let alleDiscsInDb = new Set(); // alle beschikbare disciplines
+let discFilterGewijzigd = false; // alleen filteren als gebruiker actief heeft geklikt
 
 function renderDiscKnoppen(disciplines) {
   const container = document.getElementById('disc-knoppen');
@@ -375,17 +377,17 @@ function toggleDisc(disc, btn) {
     actieveDiscs.add(disc);
     btn.classList.add('actief');
   }
-  // Herlaad resultaten als er al een filter actief is
+  discFilterGewijzigd = true;
   if (actieveSubcat) kiesCategorie(actieveSubcat);
 }
 
 // Initialiseer discipline knoppen op basis van disciplines in database
 function initDiscKnoppen() {
-  const gevondenDiscs = new Set(allePraktijken.flatMap(p => p.therapeuten.flatMap(t => t.disciplines || [])));
-  // Bewaar volgorde: eerst bekende, dan onbekende
-  const geordend = [...ALLE_DISCIPLINES.filter(d => gevondenDiscs.has(d)),
-                    ...[...gevondenDiscs].filter(d => !ALLE_DISCIPLINES.includes(d))];
+  alleDiscsInDb = new Set(allePraktijken.flatMap(p => p.therapeuten.flatMap(t => t.disciplines || [])));
+  const geordend = [...ALLE_DISCIPLINES.filter(d => alleDiscsInDb.has(d)),
+                    ...[...alleDiscsInDb].filter(d => !ALLE_DISCIPLINES.includes(d))];
   actieveDiscs = new Set(geordend); // Start met alles aan
+  discFilterGewijzigd = false;
   renderDiscKnoppen(geordend);
 }
 
@@ -434,7 +436,7 @@ async function laadData() {
   try {
     const [tResp, pResp, kResp, tpResp] = await Promise.all([
       fetch(`${SUPABASE_URL}/rest/v1/therapeuten?actief=eq.true&select=id,voornaam,achternaam,foto_url,disciplines,code`, { headers: HEADERS }),
-      fetch(`${SUPABASE_URL}/rest/v1/praktijken?actief=eq.true&select=id,naam,straat,postcode,stad,website,lat,lng`, { headers: HEADERS }),
+      fetch(`${SUPABASE_URL}/rest/v1/praktijken?actief=eq.true&select=id,naam,straat,postcode,stad,website,email,telefoon,tier,lat,lng`, { headers: HEADERS }),
       fetch(`${SUPABASE_URL}/rest/v1/therapeut_subcategorieen?select=therapeut_id,subcategorie_id`, { headers: HEADERS }),
       fetch(`${SUPABASE_URL}/rest/v1/therapeut_praktijken?select=therapeut_id,praktijk_id`, { headers: HEADERS })
     ]);
@@ -605,8 +607,8 @@ function kiesCategorie(subcatId) {
     });
   }
 
-  // Filter op actieve disciplines
-  if (actieveDiscs.size > 0 && actieveDiscs.size < 10) {
+  // Filter op actieve disciplines — alleen als gebruiker actief iets heeft uitgezet
+  if (discFilterGewijzigd && actieveDiscs.size > 0) {
     gefilterd = gefilterd
       .map(p => ({ ...p, therapeuten: p.therapeuten.filter(t => (t.disciplines || []).some(d => actieveDiscs.has(d))) }))
       .filter(p => p.therapeuten.length > 0);
@@ -674,6 +676,7 @@ function filterDiscOpCategorie(disc) {
 function wisFilter() {
   actieveSubcat = null;
   actiefDisc = null;
+  discFilterGewijzigd = false;
   document.getElementById('actief-filter').style.display = 'none';
   document.getElementById('disc-filter-rij').innerHTML = '';
   document.querySelectorAll('.klacht-tegel').forEach(el => el.classList.remove('actief'));
@@ -706,22 +709,41 @@ function renderResultaten(lijst) {
   }
 
   el.innerHTML = lijst.map((p, idx) => {
-    const therapeutenHTML = p.therapeuten.map(t => {
-      const fotoHtml = t.foto_url
-        ? `<img class="therapeut-foto" src="${t.foto_url}" alt="${t.voornaam}" onerror="this.style.display='none'" />`
-        : `<div class="therapeut-avatar">👤</div>`;
-      const discTags = (t.disciplines || []).map(d => `<span class="disc-tag">${d}</span>`).join('');
-      return `<div class="therapeut-rij">${fotoHtml}<div><div class="therapeut-naam">${t.voornaam} ${t.achternaam}</div><div>${discTags}</div></div></div>`;
-    }).join('');
+    // Unieke disciplines in deze praktijk
+    const alleDiscs = [...new Set(p.therapeuten.flatMap(t => t.disciplines || []))];
+    const discPills = alleDiscs.map(d =>
+      `<span style="display:inline-block;font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--oranje-light);color:var(--oranje);margin-right:4px">${d}</span>`
+    ).join('');
+
+    // Bio van eerste therapeut
+    const eersteTherapeut = p.therapeuten[0];
+    const bio = eersteTherapeut?.bio || '';
+    const bioKort = bio.length > 90 ? bio.substring(0, 90) + '...' : bio;
+
+    // Tier badge
+    const tierBadge = p.tier === 'partner'
+      ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:999px;background:#FEF9E7;color:#C9940A;border:1px solid #F5D06B;margin-bottom:10px">⭐ Partner</span>`
+      : p.tier === 'plus'
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:999px;background:#EAF0FB;color:#1A5276;border:1px solid #AEC6E8;margin-bottom:10px">✦ Plus</span>`
+        : '';
 
     return `<div class="praktijk-kaart" id="pk-${idx}" onclick="focusPraktijk(${p.lat||0},${p.lng||0},${idx})">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">
+      ${tierBadge}
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px">
         <div class="praktijk-naam">${p.naam}</div>
         <div style="background:var(--oranje);color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0">${idx+1}</div>
       </div>
-      <div class="praktijk-adres">📍 ${[p.straat, p.postcode, p.stad].filter(Boolean).join(', ')}</div>
-      ${p.website ? `<div style="font-size:0.78rem;margin-top:4px"><a href="${p.website}" target="_blank" onclick="event.stopPropagation()" style="color:var(--oranje)">Website →</a></div>` : ''}
-      <div class="praktijk-therapeuten">${therapeutenHTML}</div>
+      ${discPills ? `<div style="margin-bottom:10px">${discPills}</div>` : ''}
+      <div class="praktijk-adres" style="margin-bottom:6px">📍 ${[p.straat, p.postcode, p.stad].filter(Boolean).join(', ')}</div>
+      ${p.email ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">✉️ <a href="mailto:${p.email}" onclick="event.stopPropagation()" style="color:var(--text-muted);text-decoration:none">${p.email}</a></div>` : ''}
+      ${p.telefoon ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">📞 <a href="tel:${p.telefoon}" onclick="event.stopPropagation()" style="color:var(--text-muted);text-decoration:none">${p.telefoon}</a></div>` : ''}
+      ${p.website ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">🌐 <a href="${p.website}" target="_blank" onclick="event.stopPropagation()" style="color:var(--text-muted);text-decoration:none">Website</a></div>` : ''}
+      ${bioKort ? `<div style="font-size:0.82rem;color:var(--text-muted);line-height:1.55;margin-bottom:12px">${bioKort}${bio.length > 90 ? ` <span style="color:var(--oranje);font-weight:600;cursor:pointer">Lees meer</span>` : ''}</div>` : ''}
+      <a href="therapeuten.html?praktijk=${p.id}" onclick="event.stopPropagation()"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--groen);color:white;border-radius:8px;padding:10px 16px;font-size:0.88rem;font-weight:700;text-decoration:none;transition:background 0.2s;margin-top:4px"
+        onmouseover="this.style.background='#3d8b40'" onmouseout="this.style.background='var(--groen)'">
+        👥 Bekijk therapeuten
+      </a>
     </div>`;
   }).join('');
 
