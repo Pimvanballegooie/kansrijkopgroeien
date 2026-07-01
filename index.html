@@ -436,7 +436,7 @@ async function laadData() {
   try {
     const [tResp, pResp, kResp, tpResp] = await Promise.all([
       fetch(`${SUPABASE_URL}/rest/v1/therapeuten?actief=eq.true&select=id,voornaam,achternaam,foto_url,disciplines,code`, { headers: HEADERS }),
-      fetch(`${SUPABASE_URL}/rest/v1/praktijken?actief=eq.true&select=id,naam,straat,postcode,stad,website,email,telefoon,tier,lat,lng`, { headers: HEADERS }),
+      fetch(`${SUPABASE_URL}/rest/v1/praktijken?actief=eq.true&select=id,naam,straat,huisnummer,postcode,stad,website,contact_email,telefoon,tier,beschrijving,lat,lng`, { headers: HEADERS }),
       fetch(`${SUPABASE_URL}/rest/v1/therapeut_subcategorieen?select=therapeut_id,subcategorie_id`, { headers: HEADERS }),
       fetch(`${SUPABASE_URL}/rest/v1/therapeut_praktijken?select=therapeut_id,praktijk_id`, { headers: HEADERS })
     ]);
@@ -711,14 +711,14 @@ function renderResultaten(lijst) {
   el.innerHTML = lijst.map((p, idx) => {
     // Unieke disciplines in deze praktijk
     const alleDiscs = [...new Set(p.therapeuten.flatMap(t => t.disciplines || []))];
+    const eersteTherapeut = p.therapeuten[0];
     const discPills = alleDiscs.map(d =>
       `<span style="display:inline-block;font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--oranje-light);color:var(--oranje);margin-right:4px">${d}</span>`
     ).join('');
 
-    // Bio van eerste therapeut
-    const eersteTherapeut = p.therapeuten[0];
-    const bio = eersteTherapeut?.bio || '';
-    const bioKort = bio.length > 90 ? bio.substring(0, 90) + '...' : bio;
+    // Bio van de praktijk zelf
+    const bio = p.beschrijving || eersteTherapeut?.bio || '';
+    const bioKort = bio.length > 100 ? bio.substring(0, 100) + '...' : bio;
 
     // Tier badge
     const tierBadge = p.tier === 'partner'
@@ -735,7 +735,7 @@ function renderResultaten(lijst) {
       </div>
       ${discPills ? `<div style="margin-bottom:10px">${discPills}</div>` : ''}
       <div class="praktijk-adres" style="margin-bottom:6px">📍 ${[p.straat, p.postcode, p.stad].filter(Boolean).join(', ')}</div>
-      ${p.email ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">✉️ <a href="mailto:${p.email}" onclick="event.stopPropagation()" style="color:var(--text-muted);text-decoration:none">${p.email}</a></div>` : ''}
+      ${p.contact_email ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">✉️ <a href="mailto:${p.contact_email}" onclick="event.stopPropagation()" style="color:var(--text-muted);text-decoration:none">${p.contact_email}</a></div>` : ''}
       ${p.telefoon ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">📞 <a href="tel:${p.telefoon}" onclick="event.stopPropagation()" style="color:var(--text-muted);text-decoration:none">${p.telefoon}</a></div>` : ''}
       ${p.website ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">🌐 <a href="${p.website}" target="_blank" onclick="event.stopPropagation()" style="color:var(--text-muted);text-decoration:none">Website</a></div>` : ''}
       ${bioKort ? `<div style="font-size:0.82rem;color:var(--text-muted);line-height:1.55;margin-bottom:12px">${bioKort}${bio.length > 90 ? ` <span style="color:var(--oranje);font-weight:600;cursor:pointer">Lees meer</span>` : ''}</div>` : ''}
