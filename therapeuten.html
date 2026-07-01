@@ -97,38 +97,8 @@ const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 const HEADERS = { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}` };
 
 const KO_SUBCAT_IDS = new Set([1,2,3,4,5,6,7,8,9,10]);
-const SUBCAT_NAMEN = {
-  // Kansrijk opgroeien
-  1:'Motorische ontwikkeling',2:'Schrijven & fijne motoriek',3:'Sport, groei & blessures',
-  4:'Houding & wervelkolom',5:'Ademhaling',6:'Zuigeling & jong kind',
-  7:'Sensorische prikkelverwerking',8:'Revalidatie & operatie',9:'Complexe ontwikkeling',
-  10:'Manuele therapie bij kinderen',
-  // Gezond oud worden
-  11:'Kwetsbaarheid & mobiliteit',12:'Valpreventie & balans',13:'Dementie & bewegen',
-  14:'Herstel na ziekenhuisopname',15:'Voorbereiding op operatie',16:'Revalidatie na operatie',
-  17:'Sport & overbelasting',18:'Ouderen met levenslange beperking',
-  // Neurologie
-  19:'CVA & NAH',20:'Parkinson',21:'MS',22:'Neuromusculaire aandoeningen',23:'Duizeligheid & evenwicht',
-  // Mentale gezondheid
-  24:'Psychosomatische klachten',25:'Ademhaling & hyperventilatie',26:'Functionele neurologische stoornis',
-  // Chronische zorg
-  27:'Longklachten',28:'Etalagebenen',29:'Hartrevalidatie',30:'Oncologische revalidatie',
-  31:'Chronische pijn',32:'Chronische vermoeidheid',33:'Diabetes & bewegen',
-  34:'Reuma, artrose & botgezondheid',35:'Voorbereiding op operatie',
-  // Rug, nek en bekken
-  36:'Lage rugklachten',37:'Nekklachten',38:'Bekkenklachten',39:'Houding & scoliose',
-  40:'Revalidatie na operatie',41:'Sport & overbelasting',42:'Voorbereiding op operatie',
-  // Benen
-  43:'Heup, lies & bovenbeen',44:'Knie & onderbeen',45:'Enkel & voet',
-  46:'Artrose',47:'Revalidatie na operatie',48:'Voorbereiding op operatie',49:'Sport & overbelasting',
-  // Armen
-  50:'Schouder & bovenarm',51:'Elleboog & onderarm',52:'Pols & hand',
-  53:'Revalidatie na operatie',54:'Voorbereiding op operatie',55:'Sport & overbelasting',
-  // Behandelvormen
-  56:'Manuele therapie',57:'Sportfysiotherapie',58:'Dry needling',59:'Echografie',
-  60:'Shockwave',61:'Oedeem & lymfe',62:'Kaakfysiotherapie',
-  63:'Leefstijl & beweegprogrammas',64:'Groepsprogrammas',65:'EPTE',66:'Bekkenfysiotherapie'
-};
+// Subcategorie namen worden dynamisch geladen uit Supabase
+let SUBCAT_NAMEN = {};
 
 async function laadPagina() {
   const params = new URLSearchParams(window.location.search);
@@ -136,15 +106,22 @@ async function laadPagina() {
   if (!praktijkId) { window.location.href = 'index.html'; return; }
 
   try {
-    const [pResp, kopResp, scResp] = await Promise.all([
+    const [pResp, kopResp, scResp, subcatNamenResp] = await Promise.all([
       fetch(`${SUPABASE_URL}/rest/v1/praktijken?id=eq.${praktijkId}&select=*`, { headers: HEADERS }),
       fetch(`${SUPABASE_URL}/rest/v1/therapeut_praktijken?praktijk_id=eq.${praktijkId}&select=therapeut_id`, { headers: HEADERS }),
-      fetch(`${SUPABASE_URL}/rest/v1/therapeut_subcategorieen?select=therapeut_id,subcategorie_id`, { headers: HEADERS })
+      fetch(`${SUPABASE_URL}/rest/v1/therapeut_subcategorieen?select=therapeut_id,subcategorie_id`, { headers: HEADERS }),
+      fetch(`${SUPABASE_URL}/rest/v1/subcategorieen?select=id,naam&order=id`, { headers: HEADERS })
     ]);
 
     const [praktijk] = await pResp.json();
     const koppelingen = await kopResp.json();
     const alleSubcats = await scResp.json();
+    const subcatNamenData = await subcatNamenResp.json();
+
+    // Bouw dynamische naam-map op uit database
+    if (Array.isArray(subcatNamenData)) {
+      subcatNamenData.forEach(s => { SUBCAT_NAMEN[s.id] = s.naam; });
+    }
 
     if (!praktijk) { document.getElementById('therapeuten-container').innerHTML = '<div class="laden"><div class="laden-icon">❌</div><div>Praktijk niet gevonden.</div></div>'; return; }
 
