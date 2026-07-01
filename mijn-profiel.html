@@ -347,6 +347,16 @@
         <div id="praktijk-locaties-container">
           <div style="color:var(--text-muted);font-size:0.88rem">Laden...</div>
         </div>
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--grey-border)">
+          <div style="font-size:0.88rem;color:var(--text-muted);margin-bottom:12px;line-height:1.6">
+            Wilt u een nieuwe locatie toevoegen aan uw praktijk? Vul het aanmeldformulier in — uw gegevens worden alvast vooringevuld. Na goedkeuring door het beheer wordt de locatie actief.
+          </div>
+          <a id="btn-locatie-toevoegen" href="#" target="_blank"
+            style="display:inline-flex;align-items:center;gap:8px;background:var(--oranje);color:white;border-radius:8px;padding:11px 20px;font-size:0.9rem;font-weight:700;text-decoration:none;transition:background 0.2s"
+            onmouseover="this.style.background='var(--oranje-dark)'" onmouseout="this.style.background='var(--oranje)'">
+            📍 Nieuwe locatie aanmelden →
+          </a>
+        </div>
       </div>
     </div>
 
@@ -674,6 +684,20 @@ async function renderCursussen() {
 // ── PRAKTIJK LOCATIES (alle locaties waar beheerder van) ──
 function renderPraktijkLocaties(praktijken) {
   const container = document.getElementById('praktijk-locaties-container');
+  const t = huidigeTherapeut;
+
+  // Stel de "Nieuwe locatie aanmelden" knop in met vooringevulde URL
+  const eerstePraktijk = praktijken[0];
+  const aanmeldUrl = new URL('https://vindjefysio.net/aanmelden.html');
+  aanmeldUrl.searchParams.set('extra_locatie', '1');
+  aanmeldUrl.searchParams.set('naam', eerstePraktijk?.naam || '');
+  aanmeldUrl.searchParams.set('email', t.email || '');
+  aanmeldUrl.searchParams.set('voornaam', t.voornaam || '');
+  aanmeldUrl.searchParams.set('achternaam', t.achternaam || '');
+  aanmeldUrl.searchParams.set('telefoon', t.telefoon || '');
+  aanmeldUrl.searchParams.set('pakket', eerstePraktijk?.tier || 'basis');
+  aanmeldUrl.searchParams.set('via', 'kansrijkopgroeien.net');
+  document.getElementById('btn-locatie-toevoegen').href = aanmeldUrl.toString();
 
   container.innerHTML = praktijken.map((p, index) => `
     <div class="praktijk-locatie-kaart" id="plk-${p.id}">
