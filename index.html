@@ -51,23 +51,30 @@
 
     /* ZOEKSECTIE */
     .zoek-sectie { background: var(--grey-bg); padding: 0 24px 48px; }
-    .zoek-inner { max-width: 680px; margin: 0 auto; }
+    .zoek-inner { max-width: 720px; margin: 0 auto; }
     .zoek-kaart { background: var(--white); border-radius: 20px; padding: 28px; box-shadow: 0 8px 40px rgba(0,0,0,0.12); margin-top: -48px; position: relative; z-index: 10; border: 1px solid var(--grey-border); }
-    .zoek-titel { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 16px; }
+    .zoek-titel { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 14px; }
 
-    /* DISCIPLINE SUGGESTIES (boven zoekbalk) */
-    .disc-suggesties { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; min-height: 0; transition: min-height 0.2s; }
-    .disc-suggestie-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: var(--oranje-light); border: 1.5px solid rgba(232,115,90,0.3); border-radius: 999px; color: var(--oranje); font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-    .disc-suggestie-btn:hover { background: var(--oranje); color: var(--white); border-color: var(--oranje); }
+    /* DISCIPLINE KNOPPEN boven zoekbalk — zelfde stijl als vindjefysio */
+    .disc-knoppen { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+    .disc-knop { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--grey-border); background: var(--white); color: var(--text-muted); font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .disc-knop:hover { border-color: var(--oranje); color: var(--oranje); }
+    .disc-knop.actief { background: var(--navy); border-color: var(--navy); color: var(--white); }
+    .disc-knop .disc-avatar { width: 20px; height: 20px; border-radius: 50%; background: var(--grey-bg); color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 700; flex-shrink: 0; }
+    .disc-knop.actief .disc-avatar { background: rgba(255,255,255,0.25); color: var(--white); }
 
-    /* ZOEKBALK */
-    .zoek-balk-wrap { position: relative; margin-bottom: 12px; }
-    .zoek-input { width: 100%; padding: 14px 50px 14px 18px; border: 2px solid var(--grey-border); border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 1rem; outline: none; transition: border-color 0.2s; }
-    .zoek-input:focus { border-color: var(--oranje); box-shadow: 0 0 0 3px rgba(232,115,90,0.12); }
-    .zoek-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 1.1rem; color: var(--text-muted); pointer-events: none; }
-    .zoek-wis { position: absolute; right: 44px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 0.9rem; color: var(--text-muted); display: none; padding: 4px; }
+    /* ZOEKBALK met locatieveld rechts */
+    .zoek-balk { display: flex; gap: 8px; background: var(--grey-bg); border: 2px solid var(--grey-border); border-radius: 12px; padding: 6px; margin-bottom: 12px; transition: border-color 0.2s; }
+    .zoek-balk:focus-within { border-color: var(--oranje); box-shadow: 0 0 0 3px rgba(232,115,90,0.12); }
+    .zoek-input { flex: 1; padding: 10px 14px; border: none; background: transparent; font-family: 'Inter', sans-serif; font-size: 0.95rem; color: var(--text); outline: none; }
+    .zoek-scheiding { width: 1px; background: var(--grey-border); margin: 4px 0; flex-shrink: 0; }
+    .zoek-locatie-input { width: 160px; padding: 10px 14px; border: none; background: transparent; font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text); outline: none; flex-shrink: 0; }
+    .zoek-locatie-input::placeholder { color: var(--text-muted); }
+    .zoek-btn-inline { padding: 10px 18px; background: var(--oranje); color: var(--white); border: none; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.2s; white-space: nowrap; flex-shrink: 0; }
+    .zoek-btn-inline:hover { background: var(--oranje-dark); }
+    .zoek-wis { background: none; border: none; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); padding: 4px 8px; display: none; flex-shrink: 0; align-self: center; }
 
-    /* CATEGORIE SUGGESTIES (onder zoekbalk) */
+    /* CATEGORIE SUGGESTIES onder zoekbalk */
     .cat-suggesties { display: flex; flex-direction: column; gap: 4px; }
     .cat-suggestie { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1.5px solid var(--grey-border); border-radius: 10px; cursor: pointer; transition: all 0.15s; background: var(--white); }
     .cat-suggestie:hover { border-color: var(--oranje); background: var(--oranje-light); }
@@ -197,20 +204,24 @@
     <div class="zoek-kaart">
       <div class="zoek-titel">🔍 Zoek op klacht, specialisme of naam</div>
 
-      <!-- Discipline suggesties BOVEN de zoekbalk -->
-      <div class="disc-suggesties" id="disc-suggesties"></div>
+      <!-- Discipline knoppen BOVEN zoekbalk -->
+      <div class="disc-knoppen" id="disc-knoppen"></div>
 
-      <!-- Zoekbalk -->
-      <div class="zoek-balk-wrap">
+      <!-- Zoekbalk MET locatieveld rechts -->
+      <div class="zoek-balk">
         <input type="text" class="zoek-input" id="zoek-input"
           placeholder="Bijv. schrijfproblemen, motoriek, DCD..."
           oninput="handleZoekInput(this.value)"
           onkeydown="if(event.key==='Enter') voerZoekopdracht()" />
         <button class="zoek-wis" id="zoek-wis" onclick="wisZoekopdracht()">✕</button>
-        <span class="zoek-icon">🔍</span>
+        <div class="zoek-scheiding"></div>
+        <input type="text" class="zoek-locatie-input" id="zoek-locatie"
+          placeholder="📍 Stad of postcode"
+          onkeydown="if(event.key==='Enter') voerZoekopdracht()" />
+        <button class="zoek-btn-inline" onclick="voerZoekopdracht()">Zoeken</button>
       </div>
 
-      <!-- Categorie suggesties ONDER de zoekbalk -->
+      <!-- Categorie suggesties ONDER zoekbalk -->
       <div class="cat-suggesties" id="cat-suggesties"></div>
 
       <p class="zoek-hint">💡 Tip: zoek op klacht of specialisme, of klik een tegel hieronder</p>
@@ -333,8 +344,50 @@ const HEADERS = { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}` };
 
 const KO_SUBCAT_IDS = [1,2,3,4,5,6,7,8,9,10];
 
-// Alle KO categorieën met zoektermen
-const CATEGORIEEN = [
+// Alle disciplines die in KO voorkomen, met standaard volgorde
+const ALLE_DISCIPLINES = ['Fysiotherapeut', 'Ergotherapeut', 'Logopedist', 'Diëtist', 'Oefentherapeut', 'Psycholoog'];
+const DISC_AFKORTING = {
+  'Fysiotherapeut': 'F', 'Ergotherapeut': 'E', 'Logopedist': 'L',
+  'Diëtist': 'D', 'Oefentherapeut': 'OT', 'Psycholoog': 'P',
+  'Kinderfysiotherapeut': 'KF', 'Bekkenfysiotherapeut': 'BF'
+};
+
+// Welke disciplines standaard actief zijn (alles aan bij start)
+let actieveDiscs = new Set(ALLE_DISCIPLINES);
+
+function renderDiscKnoppen(disciplines) {
+  const container = document.getElementById('disc-knoppen');
+  if (!disciplines || disciplines.length === 0) return;
+  container.innerHTML = disciplines.map(d => {
+    const afk = DISC_AFKORTING[d] || d.charAt(0).toUpperCase();
+    const isActief = actieveDiscs.has(d);
+    return `<button class="disc-knop ${isActief ? 'actief' : ''}" onclick="toggleDisc('${d}', this)">
+      <span class="disc-avatar">${afk}</span>${d}
+    </button>`;
+  }).join('');
+}
+
+function toggleDisc(disc, btn) {
+  if (actieveDiscs.has(disc)) {
+    actieveDiscs.delete(disc);
+    btn.classList.remove('actief');
+  } else {
+    actieveDiscs.add(disc);
+    btn.classList.add('actief');
+  }
+  // Herlaad resultaten als er al een filter actief is
+  if (actieveSubcat) kiesCategorie(actieveSubcat);
+}
+
+// Initialiseer discipline knoppen op basis van disciplines in database
+function initDiscKnoppen() {
+  const gevondenDiscs = new Set(allePraktijken.flatMap(p => p.therapeuten.flatMap(t => t.disciplines || [])));
+  // Bewaar volgorde: eerst bekende, dan onbekende
+  const geordend = [...ALLE_DISCIPLINES.filter(d => gevondenDiscs.has(d)),
+                    ...[...gevondenDiscs].filter(d => !ALLE_DISCIPLINES.includes(d))];
+  actieveDiscs = new Set(geordend); // Start met alles aan
+  renderDiscKnoppen(geordend);
+}
   { id:1, icon:'🏃', naam:'Motorische ontwikkeling', sub:'Loopt laat, valt veel, coördinatie', termen:['motorisch','motoriek','lopen','coördinatie','vallen','bewegen','DCD','ontwikkeling'] },
   { id:2, icon:'✏️', naam:'Schrijven & fijne motoriek', sub:'Schrijfproblemen, knippen, koppelen', termen:['schrijven','schrijfproblemen','fijne motoriek','knippen','dysgrafie','potlood','pen','veters','knoopjes'] },
   { id:3, icon:'⚽', naam:'Sport, groei & blessures', sub:'Sportblessures, groeipijn', termen:['sport','blessure','groeipijn','osgood','overbelasting','voetbal','hardlopen','springen'] },
@@ -428,6 +481,7 @@ async function laadData() {
     }).addTo(kaart);
 
     console.log(`✓ ${allePraktijken.length} praktijken geladen`);
+    initDiscKnoppen();
   } catch(e) {
     console.error('Laad fout:', e);
   }
@@ -436,11 +490,11 @@ async function laadData() {
 // ── ZOEK INPUT HANDLER ──
 function handleZoekInput(waarde) {
   const wisBtn = document.getElementById('zoek-wis');
-  wisBtn.style.display = waarde ? 'block' : 'none';
+  wisBtn.style.display = waarde ? 'inline-block' : 'none';
 
   if (!waarde.trim()) {
-    document.getElementById('disc-suggesties').innerHTML = '';
     document.getElementById('cat-suggesties').innerHTML = '';
+    initDiscKnoppen();
     return;
   }
 
@@ -453,16 +507,22 @@ function handleZoekInput(waarde) {
     cat.termen.some(t => t.toLowerCase().includes(q))
   );
 
-  // Discipline suggesties BOVEN zoekbalk
-  const allDiscs = new Set(allePraktijken.flatMap(p => p.therapeuten.flatMap(t => t.disciplines || [])));
-  const matchDiscs = [...allDiscs].filter(d => d.toLowerCase().includes(q));
-  const discContainer = document.getElementById('disc-suggesties');
-  if (matchDiscs.length > 0) {
-    discContainer.innerHTML = matchDiscs.map(d =>
-      `<button class="disc-suggestie-btn" onclick="filterOpDisc('${d}')">👤 ${d}</button>`
-    ).join('');
-  } else {
-    discContainer.innerHTML = '';
+  // Update discipline knoppen op basis van relevante therapeuten
+  if (matchendeCats.length > 0) {
+    const relevantIds = new Set(matchendeCats.map(c => c.id));
+    const gevondenDiscs = new Set();
+    allePraktijken.forEach(p => {
+      p.therapeuten.forEach(t => {
+        if (t.subcats.some(s => relevantIds.has(s))) {
+          (t.disciplines || []).forEach(d => gevondenDiscs.add(d));
+        }
+      });
+    });
+    if (gevondenDiscs.size > 0) {
+      const geordend = [...ALLE_DISCIPLINES.filter(d => gevondenDiscs.has(d)),
+                        ...[...gevondenDiscs].filter(d => !ALLE_DISCIPLINES.includes(d))];
+      renderDiscKnoppen(geordend);
+    }
   }
 
   // Categorie suggesties ONDER zoekbalk
@@ -470,7 +530,7 @@ function handleZoekInput(waarde) {
   if (matchendeCats.length > 0) {
     catContainer.innerHTML = matchendeCats.slice(0, 4).map(cat => {
       const count = allePraktijken.filter(p => p.therapeuten.some(t => t.subcats.includes(cat.id))).length;
-      return `<div class="cat-suggestie" onclick="kiesCategorie(${cat.id})">
+      return `<div class="cat-suggestie" onclick="kiesTegel(${cat.id})">
         <span class="icon">${cat.icon}</span>
         <div>
           <div class="naam">${cat.naam}</div>
@@ -487,26 +547,24 @@ function handleZoekInput(waarde) {
 function wisZoekopdracht() {
   document.getElementById('zoek-input').value = '';
   document.getElementById('zoek-wis').style.display = 'none';
-  document.getElementById('disc-suggesties').innerHTML = '';
   document.getElementById('cat-suggesties').innerHTML = '';
+  initDiscKnoppen();
 }
 
 function voerZoekopdracht() {
   const waarde = document.getElementById('zoek-input').value.trim();
   if (!waarde) return;
-  // Kies de eerste passende categorie
   const q = waarde.toLowerCase();
   const match = CATEGORIEEN.find(cat =>
     cat.naam.toLowerCase().includes(q) ||
     cat.termen.some(t => t.toLowerCase().includes(q))
   );
-  if (match) kiesCategorie(match.id);
+  if (match) kiesTegel(match.id);
 }
 
 // ── KIES CATEGORIE (via suggestie of tegel) ──
 function kiesTegel(subcatId) {
   document.getElementById('zoek-input').value = CATEGORIEEN.find(c => c.id === subcatId)?.naam || '';
-  document.getElementById('disc-suggesties').innerHTML = '';
   document.getElementById('cat-suggesties').innerHTML = '';
   kiesCategorie(subcatId);
 }
@@ -523,10 +581,28 @@ function kiesCategorie(subcatId) {
   // Sluit suggesties
   document.getElementById('cat-suggesties').innerHTML = '';
 
-  // Filter
-  const gefilterd = allePraktijken
+  // Filter op subcategorie
+  let gefilterd = allePraktijken
     .filter(p => p.therapeuten.some(t => t.subcats.includes(subcatId)))
     .map(p => ({ ...p, therapeuten: p.therapeuten.filter(t => t.subcats.includes(subcatId)) }));
+
+  // Filter op locatie als ingevuld
+  const locatie = (document.getElementById('zoek-locatie')?.value || '').trim().toLowerCase();
+  if (locatie) {
+    const lok = locatie.replace(/\s/g, '');
+    gefilterd = gefilterd.filter(p => {
+      const stad = (p.stad || '').toLowerCase();
+      const postcode = (p.postcode || '').toLowerCase().replace(/\s/g, '');
+      return stad.includes(locatie) || postcode.includes(lok);
+    });
+  }
+
+  // Filter op actieve disciplines
+  if (actieveDiscs.size > 0 && actieveDiscs.size < 10) {
+    gefilterd = gefilterd
+      .map(p => ({ ...p, therapeuten: p.therapeuten.filter(t => (t.disciplines || []).some(d => actieveDiscs.has(d))) }))
+      .filter(p => p.therapeuten.length > 0);
+  }
 
   gefilterdePraktijken = gefilterd;
 
