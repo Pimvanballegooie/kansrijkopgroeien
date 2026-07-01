@@ -28,30 +28,32 @@
     .logo-text { font-weight: 700; font-size: 1rem; color: var(--navy); }
     .logo-text span { color: var(--oranje); }
 
-    /* HERO */
-    .praktijk-hero { background: var(--navy); color: white; padding: 40px 24px 36px; }
-    .praktijk-hero-inner { max-width: 1100px; margin: 0 auto; }
-    .terug-link { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.65); font-size: 0.85rem; text-decoration: none; margin-bottom: 20px; transition: color 0.2s; }
+    /* KO HERO — oranje/groen gradient */
+    .praktijk-hero { background: linear-gradient(135deg, #E8735A 0%, #F5A623 40%, #4CAF50 100%); position: relative; color: white; padding: 40px 24px 36px; }
+    .praktijk-hero::before { content:''; position:absolute; inset:0; background:rgba(0,0,0,0.25); }
+    .praktijk-hero-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+    .terug-link { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.75); font-size: 0.85rem; text-decoration: none; margin-bottom: 16px; transition: color 0.2s; }
     .terug-link:hover { color: white; }
-    .praktijk-hero h1 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; margin-bottom: 8px; }
+    .praktijk-hero h1 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; margin-bottom: 10px; text-shadow: 0 2px 8px rgba(0,0,0,0.15); }
     .praktijk-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
-    .praktijk-meta-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: rgba(255,255,255,0.75); }
-    .praktijk-meta-item a { color: rgba(255,255,255,0.75); text-decoration: none; }
-    .praktijk-meta-item a:hover { color: white; }
-    .tier-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin-top: 12px; }
-    .tier-partner { background: rgba(249,211,66,0.2); color: #FFE082; border: 1px solid rgba(249,211,66,0.4); }
-    .tier-plus { background: rgba(41,128,185,0.2); color: #AEC6E8; border: 1px solid rgba(41,128,185,0.4); }
+    .praktijk-meta-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: rgba(255,255,255,0.85); }
+    .praktijk-meta-item a { color: rgba(255,255,255,0.85); text-decoration: none; }
+    .praktijk-meta-item a:hover { color: white; text-decoration: underline; }
+    .tier-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; font-weight: 700; padding: 4px 12px; border-radius: 999px; margin-bottom: 14px; }
+    .tier-partner { background: rgba(255,255,255,0.2); color: #FFE082; border: 1px solid rgba(255,224,130,0.5); }
+    .tier-plus { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.3); }
 
     /* THERAPEUTEN GRID */
     .content { max-width: 1100px; margin: 0 auto; padding: 40px 24px 64px; }
     .therapeuten-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
     .therapeut-kaart { background: var(--white); border: 1px solid var(--grey-border); border-radius: 16px; padding: 28px 24px; text-align: center; transition: all 0.2s; position: relative; }
-    .therapeut-kaart:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
-    .therapeut-kaart.specialist { border-color: #C9940A; box-shadow: 0 0 0 2px rgba(201,148,10,0.15); }
-    .specialist-badge { position: absolute; top: -1px; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, #C9940A, #F5A623); color: white; font-size: 0.68rem; font-weight: 700; padding: 4px 14px; border-radius: 0 0 8px 8px; white-space: nowrap; letter-spacing: 0.04em; }
+    .therapeut-kaart:hover { box-shadow: 0 6px 24px rgba(232,115,90,0.12); transform: translateY(-2px); border-color: var(--oranje); }
+    .therapeut-kaart.specialist { border-color: var(--groen); box-shadow: 0 0 0 2px rgba(76,175,80,0.15); }
+    .therapeut-kaart.specialist:hover { border-color: var(--groen); box-shadow: 0 6px 24px rgba(76,175,80,0.15); }
+    .specialist-badge { position: absolute; top: -1px; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, #4CAF50, #66BB6A); color: white; font-size: 0.68rem; font-weight: 700; padding: 4px 14px; border-radius: 0 0 8px 8px; white-space: nowrap; letter-spacing: 0.04em; }
     .therapeut-foto-wrap { margin: 0 auto 16px; }
     .therapeut-foto { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--grey-border); }
-    .therapeut-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--oranje-light); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto; }
+    .therapeut-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--oranje-light); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto; border: 3px solid var(--grey-border); }
     .therapeut-naam { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
     .disc-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 12px; }
     .disc-pill { font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--oranje-light); color: var(--oranje); }
@@ -215,7 +217,7 @@ function renderTherapeutenGrid(therapeuten, alleSubcats, goldBadges) {
     ).join('');
 
     return `<div class="therapeut-kaart${isSpecialist ? ' specialist' : ''}">
-      ${isSpecialist ? '<div class="specialist-badge">⭐ KO Specialist</div>' : ''}
+      ${isSpecialist ? '<div class="specialist-badge">🌱 KO Specialist</div>' : ''}
       <div class="therapeut-foto-wrap">${fotoHtml}</div>
       <div class="therapeut-naam">${naam}</div>
       ${discPills ? `<div class="disc-pills">${discPills}</div>` : ''}
