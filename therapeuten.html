@@ -61,6 +61,23 @@
     .subcat-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 8px; }
     .subcat-tag { font-size: 0.72rem; background: var(--grey-bg); color: var(--text-muted); padding: 3px 10px; border-radius: 999px; border: 1px solid var(--grey-border); }
     .subcat-tag.ko { background: var(--groen-light); color: #2e7d32; border-color: rgba(76,175,80,0.3); }
+    .subcat-tag.ko.actief-match { background: var(--oranje-light); color: var(--oranje-dark); border-color: var(--oranje); font-weight: 700; }
+
+    .sectie-titel { font-size: 1.1rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+    .sectie-sub { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 24px; max-width: 640px; line-height: 1.5; }
+
+    .match-label { display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; font-weight: 700; color: var(--oranje-dark); background: var(--oranje-light); padding: 4px 10px; border-radius: 999px; margin-bottom: 12px; }
+    .andere-specialisatie-label { display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); background: var(--grey-bg); border: 1px solid var(--grey-border); padding: 3px 10px; border-radius: 999px; margin-bottom: 12px; }
+    .therapeut-kaart.match { border-color: var(--oranje); box-shadow: 0 0 0 2px rgba(232,115,90,0.18); }
+    .therapeut-kaart.overig { opacity: 0.92; }
+
+    .overig-toggle-wrap { text-align: center; margin-top: 32px; }
+    .overig-toggle-btn { background: none; border: 1px solid var(--grey-border); color: var(--text-muted); font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; padding: 10px 22px; border-radius: 999px; cursor: pointer; transition: all 0.2s; }
+    .overig-toggle-btn:hover { border-color: var(--oranje); color: var(--oranje); }
+    .overig-sectie { margin-top: 28px; padding-top: 28px; border-top: 1px dashed var(--grey-border); display: none; }
+    .overig-sectie.zichtbaar { display: block; }
+    .overig-melding { font-size: 0.82rem; color: var(--text-muted); background: var(--grey-bg); border: 1px solid var(--grey-border); border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; max-width: 640px; line-height: 1.5; }
+    .geen-ko-melding { text-align: center; padding: 32px 20px; color: var(--text-muted); background: var(--white); border: 1px solid var(--grey-border); border-radius: 16px; margin-bottom: 28px; }
 
     .laden { text-align: center; padding: 60px 20px; color: var(--text-muted); }
     .laden-icon { font-size: 2.5rem; margin-bottom: 12px; }
@@ -103,6 +120,8 @@ let SUBCAT_NAMEN = {};
 async function laadPagina() {
   const params = new URLSearchParams(window.location.search);
   const praktijkId = params.get('praktijk');
+  const subcatParam = params.get('subcat');
+  const subcatId = subcatParam ? parseInt(subcatParam, 10) : null;
   if (!praktijkId) { window.location.href = 'index.html'; return; }
 
   try {
@@ -156,7 +175,7 @@ async function laadPagina() {
       gData.forEach(g => goldBadges.add(g.therapeut_code));
     } catch(e) {}
 
-    renderTherapeutenGrid(therapeuten, alleSubcats, goldBadges);
+    renderTherapeutenGrid(therapeuten, alleSubcats, goldBadges, subcatId, praktijk.naam);
 
   } catch(e) {
     console.error(e);
@@ -186,45 +205,103 @@ function renderHero(p) {
     </div>`;
 }
 
-function renderTherapeutenGrid(therapeuten, alleSubcats, goldBadges) {
+function renderTherapeutenGrid(therapeuten, alleSubcats, goldBadges, subcatId, praktijkNaam) {
   const container = document.getElementById('therapeuten-container');
   if (therapeuten.length === 0) {
     container.innerHTML = '<div class="laden"><div class="laden-icon">👤</div><div>Geen actieve therapeuten gevonden.</div></div>';
     return;
   }
 
-  container.innerHTML = `<div class="therapeuten-grid">${therapeuten.map(t => {
-    const naam = `${t.voornaam} ${t.achternaam}`;
-    const isSpecialist = goldBadges.has(t.code || String(t.id));
+  const verrijkt = therapeuten.map(t => {
     const subcats = alleSubcats.filter(k => k.therapeut_id === t.id).map(k => k.subcategorie_id);
     const koSubcats = subcats.filter(id => KO_SUBCAT_IDS.has(id));
     const andereSubcats = subcats.filter(id => !KO_SUBCAT_IDS.has(id));
+    return {
+      t, koSubcats, andereSubcats,
+      isSpecialist: goldBadges.has(t.code || String(t.id)),
+      isMatch: subcatId ? koSubcats.includes(subcatId) : false
+    };
+  });
 
-    const fotoHtml = t.foto_url
-      ? `<img class="therapeut-foto" src="${t.foto_url}" alt="${naam}" onerror="this.outerHTML='<div class=therapeut-avatar>👤</div>'" />`
-      : `<div class="therapeut-avatar">👤</div>`;
+  const koLijst = verrijkt.filter(v => v.koSubcats.length > 0);
+  const andereLijst = verrijkt.filter(v => v.koSubcats.length === 0);
 
-    const discPills = (t.disciplines || []).map(d =>
-      `<span class="disc-pill">${d}</span>`
-    ).join('');
+  // Match op de gezochte specialisatie eerst, daarna cursus-specialisten, rest behoudt volgorde
+  koLijst.sort((a, b) => (b.isMatch - a.isMatch) || (b.isSpecialist - a.isSpecialist));
 
-    const koTags = koSubcats.map(id =>
-      `<span class="subcat-tag ko">✓ ${SUBCAT_NAMEN[id] || id}</span>`
-    ).join('');
+  const subcatNaam = subcatId ? (SUBCAT_NAMEN[subcatId] || '') : '';
+  let html = '';
 
-    const andereTags = andereSubcats.slice(0, 4).map(id =>
-      `<span class="subcat-tag">${SUBCAT_NAMEN[id] || id}</span>`
-    ).join('');
+  if (koLijst.length > 0) {
+    html += `<div class="sectie-titel">🌱 ${subcatNaam ? `Specialisten in "${subcatNaam}"` : 'Specialisten Kansrijk Opgroeien'}</div>`;
+    html += `<div class="sectie-sub">${subcatNaam
+      ? `Deze therapeuten van ${praktijkNaam} zijn gespecialiseerd binnen Kansrijk Opgroeien. Bovenaan staat wie werkt met "${subcatNaam}".`
+      : 'Deze therapeuten van ' + praktijkNaam + ' hebben minimaal één specialisatie binnen Kansrijk Opgroeien.'}</div>`;
+    html += `<div class="therapeuten-grid">${koLijst.map(v => buildTherapeutKaart(v, subcatId, false)).join('')}</div>`;
+  } else {
+    html += `<div class="geen-ko-melding"><div class="laden-icon">🌱</div><div>Geen therapeuten met een Kansrijk Opgroeien-specialisatie gevonden bij deze praktijk.</div></div>`;
+  }
 
-    return `<div class="therapeut-kaart${isSpecialist ? ' specialist' : ''}">
-      ${isSpecialist ? '<div class="specialist-badge">🌱 KO Specialist</div>' : ''}
-      <div class="therapeut-foto-wrap">${fotoHtml}</div>
-      <div class="therapeut-naam">${naam}</div>
-      ${discPills ? `<div class="disc-pills">${discPills}</div>` : ''}
-      ${t.bio ? `<div class="therapeut-bio">${t.bio}</div>` : ''}
-      ${koTags || andereTags ? `<div class="subcat-tags">${koTags}${andereTags}</div>` : ''}
-    </div>`;
-  }).join('')}</div>`;
+  if (andereLijst.length > 0) {
+    if (koLijst.length > 0) {
+      html += `<div class="overig-toggle-wrap"><button class="overig-toggle-btn" id="overig-toggle-btn" onclick="toonAlleTherapeuten()">👥 Toon alle therapeuten van deze praktijk (${therapeuten.length})</button></div>`;
+      html += `<div class="overig-sectie" id="overig-sectie">
+        <div class="sectie-titel">Overige therapeuten</div>
+        <div class="overig-melding">Deze therapeuten werken ook bij ${praktijkNaam}, maar hebben geen specialisatie binnen Kansrijk Opgroeien — zij hebben andere aandachtsgebieden.</div>
+        <div class="therapeuten-grid">${andereLijst.map(v => buildTherapeutKaart(v, subcatId, true)).join('')}</div>
+      </div>`;
+    } else {
+      html += `<div class="sectie-titel">Alle therapeuten van deze praktijk</div>`;
+      html += `<div class="overig-melding">Onderstaande therapeuten hebben geen specialisatie binnen Kansrijk Opgroeien — zij hebben andere aandachtsgebieden.</div>`;
+      html += `<div class="therapeuten-grid">${andereLijst.map(v => buildTherapeutKaart(v, subcatId, true)).join('')}</div>`;
+    }
+  }
+
+  container.innerHTML = html;
+}
+
+function toonAlleTherapeuten() {
+  const sectie = document.getElementById('overig-sectie');
+  const btn = document.getElementById('overig-toggle-btn');
+  sectie.classList.add('zichtbaar');
+  btn.style.display = 'none';
+  sectie.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function buildTherapeutKaart(v, subcatId, overig) {
+  const t = v.t;
+  const naam = `${t.voornaam} ${t.achternaam}`;
+
+  const fotoHtml = t.foto_url
+    ? `<img class="therapeut-foto" src="${t.foto_url}" alt="${naam}" onerror="this.outerHTML='<div class=therapeut-avatar>👤</div>'" />`
+    : `<div class="therapeut-avatar">👤</div>`;
+
+  const discPills = (t.disciplines || []).map(d =>
+    `<span class="disc-pill">${d}</span>`
+  ).join('');
+
+  const koTags = v.koSubcats.map(id =>
+    `<span class="subcat-tag ko${id === subcatId ? ' actief-match' : ''}">✓ ${SUBCAT_NAMEN[id] || id}</span>`
+  ).join('');
+
+  const andereTags = v.andereSubcats.slice(0, 4).map(id =>
+    `<span class="subcat-tag">${SUBCAT_NAMEN[id] || id}</span>`
+  ).join('');
+
+  const badge = v.isSpecialist ? '<div class="specialist-badge">🌱 KO Specialist</div>' : '';
+  const label = v.isMatch
+    ? '<div class="match-label">🎯 Sluit aan bij jouw zoekopdracht</div>'
+    : (overig ? '<div class="andere-specialisatie-label">Andere specialisatie</div>' : '');
+
+  return `<div class="therapeut-kaart${v.isSpecialist ? ' specialist' : ''}${v.isMatch ? ' match' : ''}${overig ? ' overig' : ''}">
+    ${badge}
+    <div class="therapeut-foto-wrap">${fotoHtml}</div>
+    <div class="therapeut-naam">${naam}</div>
+    ${label}
+    ${discPills ? `<div class="disc-pills">${discPills}</div>` : ''}
+    ${t.bio ? `<div class="therapeut-bio">${t.bio}</div>` : ''}
+    ${koTags || andereTags ? `<div class="subcat-tags">${koTags}${andereTags}</div>` : ''}
+  </div>`;
 }
 
 laadPagina();
