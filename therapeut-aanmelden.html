@@ -277,7 +277,7 @@ const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 const HEADERS = { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}`, 'Content-Type': 'application/json' };
 
 // KO-subcategorieën in de gedeelde database (zelfde set als index.html: KO_SUBCAT_IDS)
-const KO_SUBCAT_IDS = [1,2,3,4,5,6,7,8,9,10];
+const KO_SUBCAT_IDS = [1,2,3,4,5,6,7,8,9,10,68,69];
 
 // Disciplines relevant voor Kansrijk Opgroeien
 const DISCIPLINES = [
@@ -288,6 +288,7 @@ const DISCIPLINES = [
   { naam: 'Oefentherapeut', sub: 'Cesar / Mensendieck' },
   { naam: 'Diëtist', sub: '' },
   { naam: 'Psycholoog', sub: '' },
+  { naam: 'Leefstijlcoach', sub: 'o.a. voor Kinder-GLI' },
 ];
 
 let geverifieerdePraktijken = []; // meerdere locaties mogelijk

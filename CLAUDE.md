@@ -14,9 +14,9 @@ Deze repo is één "spoke" in een hub-and-spoke netwerk van gespecialiseerde fys
 - Mails lopen via info@vindjefysio.net.
 - Therapeut-registratie zet aangemeld_via op het eigen subsite-domein en actief=false (wacht op goedkeuring).
 - Deze site: palet primair oranje #E8735A (met oranje-dark #d4614a), navy #2C3E50, secundair groen #4CAF50. In tegenstelling tot de meeste andere spokes heeft deze site géén teal-kleur.
-- Deze site richt zich op kinderfysiotherapie/-zorg en werkt (i.p.v. de "DOMEINEN"-groepering die sommige andere spokes gebruiken) met één platte lijst `CATEGORIEEN` (subcategorie-id's 1–10, groep "Kansrijk opgroeien" in de gedeelde subcategorieen-tabel):
-  - Motorische ontwikkeling, Schrijven & fijne motoriek, Sport, groei & blessures, Houding & wervelkolom, Ademhaling, Zuigeling & jong kind, Sensorische prikkelverwerking, Revalidatie & operatie, Complexe ontwikkeling, Manuele therapie
-- Disciplines op deze site zijn breder dan alleen fysiotherapeut: Fysiotherapeut, Ergotherapeut, Logopedist, Diëtist, Oefentherapeut, Psycholoog.
+- Deze site richt zich op kinderfysiotherapie/-zorg en werkt (i.p.v. de "DOMEINEN"-groepering die sommige andere spokes gebruiken) met één platte lijst `CATEGORIEEN` (subcategorie-id's 1–10 plus 68 en 69, groep "Kansrijk opgroeien" in de gedeelde subcategorieen-tabel; houd `KO_SUBCAT_IDS` in index.html, therapeut-aanmelden.html en therapeuten.html en `KO_SPECIALISATIES` in mijn-profiel.html gelijk):
+  - Motorische ontwikkeling, Schrijven & fijne motoriek, Sport, groei & blessures, Houding & wervelkolom, Ademhaling, Zuigeling & jong kind, Sensorische prikkelverwerking, Revalidatie & operatie, Complexe ontwikkeling, Manuele therapie, Aanhoudende lichamelijke klachten (ALK, id 68), Kinder-GLI (id 69)
+- Disciplines op deze site zijn breder dan alleen fysiotherapeut: Fysiotherapeut, Ergotherapeut, Logopedist, Diëtist, Oefentherapeut, Psycholoog, Leefstijlcoach.
 
 ## Sync-pipeline
 - sync_protocollen.py haalt protocollen op uit publiek gedeelde Google Docs (export-link, geen API-key), zet markdown om naar HTML, genereert protocollen/<id>-makkelijk.html (patiënt) en -complex.html (therapeut) + protocollen.html + sitemap.xml.

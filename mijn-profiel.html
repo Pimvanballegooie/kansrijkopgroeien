@@ -337,13 +337,14 @@ const KO_SPECIALISATIES = [
   {id:3,label:'⚽ Sport, groei & blessures'},{id:4,label:'🦴 Houding & wervelkolom'},
   {id:5,label:'💨 Ademhaling'},{id:6,label:'👶 Zuigeling & jong kind'},
   {id:7,label:'🎯 Sensorische prikkelverwerking'},{id:8,label:'🏥 Revalidatie & operatie'},
-  {id:9,label:'🧩 Complexe ontwikkeling'},{id:10,label:'🙌 Manuele therapie bij kinderen'}
+  {id:9,label:'🧩 Complexe ontwikkeling'},{id:10,label:'🙌 Manuele therapie bij kinderen'},
+  {id:68,label:'🌀 Aanhoudende lichamelijke klachten (ALK)'},{id:69,label:'🍎 Kinder-GLI (leefstijl & gewicht)'}
 ];
 
 const ALLE_DISCIPLINES = [
   'Fysiotherapeut','Kinderfysiotherapeut','Ergotherapeut','Logopedist',
   'Diëtist','Oefentherapeut','Psycholoog','Manueel therapeut',
-  'Sportfysiotherapeut','Bekkenfysiotherapeut'
+  'Sportfysiotherapeut','Bekkenfysiotherapeut','Leefstijlcoach'
 ];
 
 let huidigeTherapeut = null;
@@ -409,8 +410,13 @@ const SITE_DOMEIN = 'kansrijkopgroeien.net'; // moet overeenkomen met praktijken
 // site-/specialisatie-specifieke toelatingseisen aan toevoegen.
 function heeftAffiniteitMetNetwerk(subcatData, praktijken) {
   const viaSpecialisatie = (subcatData || []).some(s => s.subcategorieen?.categorie_id === SITE_CATEGORIE_ID);
-  const viaPraktijk = (praktijken || []).some(p => p.aangemeld_via === SITE_DOMEIN);
-  return viaSpecialisatie || viaPraktijk;
+  if (viaSpecialisatie) return true;
+  // Praktijkkoppeling telt alleen mee zolang er nog geen specialisaties zijn toegekend
+  // (bv. net goedgekeurde therapeut). Zodra iemand specialisaties heeft die geen van
+  // alle bij dit netwerk horen, is de historische praktijkkoppeling niet meer genoeg.
+  const heeftSpecialisaties = (subcatData || []).length > 0;
+  if (heeftSpecialisaties) return false;
+  return (praktijken || []).some(p => p.aangemeld_via === SITE_DOMEIN);
 }
 
 async function inloggen() {

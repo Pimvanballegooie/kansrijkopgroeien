@@ -257,6 +257,8 @@
       <div class="klacht-tegel" onclick="kiesTegel(8)"><div class="klacht-icon">🏥</div><div class="klacht-naam">Revalidatie & operatie</div><div class="klacht-sub">Na operatie, langdurig ziek</div></div>
       <div class="klacht-tegel" onclick="kiesTegel(9)"><div class="klacht-icon">🧩</div><div class="klacht-naam">Complexe ontwikkeling</div><div class="klacht-sub">Syndroom, meervoudige beperking</div></div>
       <div class="klacht-tegel" onclick="kiesTegel(10)"><div class="klacht-icon">🙌</div><div class="klacht-naam">Manuele therapie</div><div class="klacht-sub">Gewrichten, wervelkolom, nek</div></div>
+      <div class="klacht-tegel" onclick="kiesTegel(68)"><div class="klacht-icon">🌀</div><div class="klacht-naam">Aanhoudende lichamelijke klachten (ALK)</div><div class="klacht-sub">Buikpijn, hoofdpijn, moe zonder duidelijke oorzaak</div></div>
+      <div class="klacht-tegel" onclick="kiesTegel(69)"><div class="klacht-icon">🍎</div><div class="klacht-naam">Kinder-GLI (leefstijl & gewicht)</div><div class="klacht-sub">Gezond gewicht en leefstijl voor kind en gezin</div></div>
     </div>
   </div>
 </section>
@@ -348,14 +350,14 @@ const SUPABASE_URL = 'https://islujznszevdynguhjdc.supabase.co';
 const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzbHVqem5zemV2ZHluZ3VoamRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NDYzMDAsImV4cCI6MjA5NzIyMjMwMH0.wh3RXZRKfpfArr3YBYu8ktE7xv1inwDD72Vq3LJl3QQ';
 const HEADERS = { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}` };
 
-const KO_SUBCAT_IDS = [1,2,3,4,5,6,7,8,9,10];
+const KO_SUBCAT_IDS = [1,2,3,4,5,6,7,8,9,10,68,69];
 
 // Alle disciplines die in KO voorkomen, met standaard volgorde
-const ALLE_DISCIPLINES = ['Fysiotherapeut', 'Ergotherapeut', 'Logopedist', 'Diëtist', 'Oefentherapeut', 'Psycholoog'];
+const ALLE_DISCIPLINES = ['Fysiotherapeut', 'Ergotherapeut', 'Logopedist', 'Diëtist', 'Oefentherapeut', 'Psycholoog', 'Leefstijlcoach'];
 const DISC_AFKORTING = {
   'Fysiotherapeut': 'F', 'Ergotherapeut': 'E', 'Logopedist': 'L',
   'Diëtist': 'D', 'Oefentherapeut': 'OT', 'Psycholoog': 'P',
-  'Kinderfysiotherapeut': 'KF', 'Bekkenfysiotherapeut': 'BF'
+  'Kinderfysiotherapeut': 'KF', 'Bekkenfysiotherapeut': 'BF', 'Leefstijlcoach': 'LC'
 };
 
 // Welke disciplines standaard actief zijn (alles aan bij start)
@@ -407,7 +409,9 @@ const CATEGORIEEN = [
   { id:7, icon:'🎯', naam:'Sensorische prikkelverwerking', sub:'Overgevoeligheid, DCD, prikkels', termen:['prikkels','sensorisch','overgevoelig','DCD','prikkelverwerking','auditief','tactiel','zintuig'] },
   { id:8, icon:'🏥', naam:'Revalidatie & operatie', sub:'Na operatie, langdurig ziek', termen:['revalidatie','operatie','herstel','ziekenhuis','langdurig','na operatie','revalideren'] },
   { id:9, icon:'🧩', naam:'Complexe ontwikkeling', sub:'Syndroom, meervoudige beperking', termen:['syndroom','beperking','down','complex','meervoudig','chromosoom','verstandelijk'] },
-  { id:10, icon:'🙌', naam:'Manuele therapie', sub:'Gewrichten, wervelkolom, nek', termen:['manueel','manuele therapie','gewricht','nek','mobilisatie','manipulatie','rug','wervelkolom'] }
+  { id:10, icon:'🙌', naam:'Manuele therapie', sub:'Gewrichten, wervelkolom, nek', termen:['manueel','manuele therapie','gewricht','nek','mobilisatie','manipulatie','rug','wervelkolom'] },
+  { id:68, icon:'🌀', naam:'Aanhoudende lichamelijke klachten (ALK)', sub:'Buikpijn, hoofdpijn, moe zonder duidelijke oorzaak', termen:['ALK','aanhoudende lichamelijke klachten','SOLK','onverklaarde klachten','buikpijn','hoofdpijn','moe','vermoeid','pijn zonder oorzaak','schoolverzuim','functionele buikpijn'] },
+  { id:69, icon:'🍎', naam:'Kinder-GLI (leefstijl & gewicht)', sub:'Gezond gewicht en leefstijl voor kind en gezin', termen:['GLI','kinder-GLI','leefstijl','leefstijlinterventie','overgewicht','obesitas','gewicht','gezond gewicht','te zwaar','leefstijlcoach','bewegen','voeding'] }
 ];
 
 let allePraktijken = [];
